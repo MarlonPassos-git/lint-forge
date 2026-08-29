@@ -142,13 +142,25 @@
 }
 
 .progress-track {
+  appearance: none;
   background: #ded8ce;
   border: 1px solid #151515;
   height: 10px;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
-.progress-track div {
+.progress-track::-webkit-progress-bar {
+  background: #ded8ce;
+}
+
+.progress-track::-webkit-progress-value {
   background: #d33b53;
-  height: 100%;
+  transition: width 340ms var(--motion-snap);
+}
+
+.progress-track::-moz-progress-bar {
+  background: #d33b53;
   transition: width 340ms var(--motion-snap);
 }

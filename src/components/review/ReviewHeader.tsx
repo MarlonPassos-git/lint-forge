@@ -1,4 +1,5 @@
 import { RotateCcw } from 'lucide-react'
+import { memo } from 'react'
 import type { RuleCategory } from '../../domain/types'
 import { CategoryFilter } from './CategoryFilter'
 
@@ -9,10 +10,10 @@ type ReviewHeaderProps = {
   selectedCategories: RuleCategory[]
   totalRules: number
   onCategoryToggle: (category: RuleCategory) => void
-  onResetRequest: () => void
+  onResetRequest: (trigger: HTMLButtonElement) => void
 }
 
-export function ReviewHeader(props: ReviewHeaderProps) {
+export const ReviewHeader = memo(function ReviewHeader(props: ReviewHeaderProps) {
   return (
     <header className="review-header">
       <div>
@@ -29,7 +30,7 @@ export function ReviewHeader(props: ReviewHeaderProps) {
       <ProgressActions {...props} />
     </header>
   )
-}
+}, areReviewHeaderPropsEqual)
 
 function ProgressActions(props: ReviewHeaderProps) {
   return (
@@ -40,29 +41,50 @@ function ProgressActions(props: ReviewHeaderProps) {
       <small className="progress-count">
         {props.completedRules}/{props.totalRules}
       </small>
-      <ProgressTrack progress={props.progress} />
+      <ProgressTrack hasSelectedCategory={props.hasSelectedCategory} progress={props.progress} />
       <ResetButton onResetRequest={props.onResetRequest} />
     </div>
   )
 }
 
-function ProgressTrack({ progress }: { progress: number }) {
+function ProgressTrack({
+  hasSelectedCategory,
+  progress,
+}: {
+  hasSelectedCategory: boolean
+  progress: number
+}) {
   return (
-    <div className="progress-track">
-      <div style={{ width: `${progress}%` }} />
-    </div>
+    <progress
+      aria-label="Review progress"
+      className="progress-track"
+      max={100}
+      value={hasSelectedCategory ? progress : 0}
+    />
   )
 }
 
-function ResetButton({ onResetRequest }: { onResetRequest: () => void }) {
+function ResetButton({ onResetRequest }: { onResetRequest: ReviewHeaderProps['onResetRequest'] }) {
   return (
     <button
       type="button"
       className="icon-button"
-      onClick={onResetRequest}
+      onClick={(event) => onResetRequest(event.currentTarget)}
       aria-label="Reset review"
     >
       <RotateCcw size={18} />
     </button>
+  )
+}
+
+function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHeaderProps) {
+  return (
+    previous.completedRules === next.completedRules &&
+    previous.hasSelectedCategory === next.hasSelectedCategory &&
+    previous.progress === next.progress &&
+    previous.selectedCategories === next.selectedCategories &&
+    previous.totalRules === next.totalRules &&
+    previous.onCategoryToggle === next.onCategoryToggle &&
+    previous.onResetRequest === next.onResetRequest
   )
 }

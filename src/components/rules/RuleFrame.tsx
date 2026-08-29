@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { BiomeRule, RuleChoice } from '../../domain/types'
 
 type RuleFrameProps = {
@@ -7,28 +8,46 @@ type RuleFrameProps = {
   stackIndex: number
 }
 
-export function RuleFrame({ decision, isActive, rule, stackIndex }: RuleFrameProps) {
+export const RuleFrame = memo(function RuleFrame({
+  decision,
+  isActive,
+  rule,
+  stackIndex,
+}: RuleFrameProps) {
+  const headingId = getRuleHeadingId(rule)
+  const isHidden = !isActive
+
   return (
     <article
+      aria-hidden={isHidden || undefined}
+      aria-labelledby={headingId}
       className={getRuleFrameClassName(isActive, decision, stackIndex)}
       data-decision-label={decision ? getDecisionLabel(decision) : undefined}
+      inert={isHidden || undefined}
     >
       <div className="rule-meta">
         <div>
           <span>{rule.group}</span>
-          <strong>{rule.name}</strong>
+          <h2 id={headingId}>
+            <strong>{rule.name}</strong>
+          </h2>
         </div>
         <p>{rule.summary}</p>
       </div>
       <iframe
         className="docs-frame"
+        aria-hidden={isHidden || undefined}
         title={`${rule.name} documentation`}
         src={rule.url}
-        tabIndex={-1}
+        tabIndex={isActive ? 0 : -1}
         loading="eager"
       />
     </article>
   )
+})
+
+function getRuleHeadingId(rule: BiomeRule) {
+  return `rule-heading-${rule.group}-${rule.name}`.replace(/[^a-zA-Z0-9_-]/g, '-')
 }
 
 function getRuleFrameClassName(

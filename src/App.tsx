@@ -18,14 +18,11 @@ function App() {
         selectedCategories={review.selectedCategories}
         totalRules={review.filteredRules.length}
         onCategoryToggle={review.toggleCategory}
-        onResetRequest={() => review.setIsResetDialogOpen(true)}
+        onResetRequest={review.openResetDialog}
       />
       <ReviewWorkspace controller={review} />
       {review.isResetDialogOpen ? (
-        <ResetDialog
-          onCancel={() => review.setIsResetDialogOpen(false)}
-          onConfirm={review.resetReview}
-        />
+        <ResetDialog onCancel={review.closeResetDialog} onConfirm={review.resetReview} />
       ) : null}
     </main>
   )

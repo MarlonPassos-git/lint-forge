@@ -3,12 +3,18 @@ import { useEffect } from 'react'
 const ruleDocPrefetchOrigin = 'https://biomejs.dev'
 
 export function useRuleDocPrefetch(ruleUrls: string[]) {
+  const ruleUrlKey = ruleUrls.join('\n')
   useEffect(() => {
     removeRuleDocPrefetchLinks()
-    const links = [createRuleDocPreconnectLink(), ...ruleUrls.map(createRuleDocPrefetchLink)]
+    const links = [createRuleDocPreconnectLink(), ...parseRuleUrlKey(ruleUrlKey)]
     for (const link of links) document.head.append(link)
     return removeRuleDocPrefetchLinks
-  }, [ruleUrls])
+  }, [ruleUrlKey])
+}
+
+function parseRuleUrlKey(ruleUrlKey: string) {
+  if (!ruleUrlKey) return []
+  return ruleUrlKey.split('\n').map(createRuleDocPrefetchLink)
 }
 
 function removeRuleDocPrefetchLinks() {

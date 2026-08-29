@@ -5,11 +5,17 @@ const BIOME_SCHEMA_URL = 'https://biomejs.dev/schemas/2.4.16/schema.json'
 export function parseBiomeConfig(inputText: string): BiomeConfig {
   if (inputText.trim() === '') return {}
 
+  let parsedConfig: unknown
   try {
-    return JSON.parse(inputText) as BiomeConfig
+    parsedConfig = JSON.parse(inputText)
   } catch {
-    throw new Error(`Invalid biome config: "${inputText.slice(0, 80)}"; expected JSON object`)
+    throw invalidBiomeConfig(inputText)
   }
+
+  if (!isRecord(parsedConfig)) {
+    throw invalidBiomeConfig(inputText)
+  }
+  return parsedConfig
 }
 
 export function extractConfiguredRuleKeys(config: BiomeConfig): Set<string> {
@@ -84,5 +90,11 @@ function getGroupRules(config: BiomeConfig, group: string) {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+  const isObject = typeof value === 'object' && value !== null
+  return isObject && !Array.isArray(value)
+}
+
+function invalidBiomeConfig(inputText: string): Error {
+  const preview = inputText.slice(0, 80)
+  return new Error(`Invalid biome config: "${preview}"; expected JSON object`)
 }

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { BiomeRule, RuleChoice } from '../../domain/types'
 import { FinishedStage, NoCategoriesStage } from './EmptyStages'
 import { RuleActions } from './RuleActions'
@@ -11,12 +12,12 @@ type RuleStageProps = {
   onChoose: (decision: RuleChoice['decision']) => void
 }
 
-export function RuleStage(props: RuleStageProps) {
+export const RuleStage = memo(function RuleStage(props: RuleStageProps) {
   if (!props.hasSelectedCategory) return <NoCategoriesStage />
   if (!props.activeRule) return <FinishedStage />
 
   return (
-    <section className="rule-stage" aria-live="polite">
+    <section className="rule-stage">
       <div className="iframe-stack">
         {props.rules.map((rule, index) => (
           <RuleFrame
@@ -30,5 +31,15 @@ export function RuleStage(props: RuleStageProps) {
         <RuleActions outgoingDecision={props.outgoingDecision} onChoose={props.onChoose} />
       </div>
     </section>
+  )
+}, areRuleStagePropsEqual)
+
+function areRuleStagePropsEqual(previous: RuleStageProps, next: RuleStageProps) {
+  return (
+    previous.activeRule === next.activeRule &&
+    previous.hasSelectedCategory === next.hasSelectedCategory &&
+    previous.outgoingDecision === next.outgoingDecision &&
+    previous.rules === next.rules &&
+    previous.onChoose === next.onChoose
   )
 }

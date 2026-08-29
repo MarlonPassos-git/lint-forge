@@ -14,12 +14,14 @@ export function ImportPanel(props: ImportPanelProps) {
       <div className="panel-title-row">
         <div>
           <FileText size={22} />
-          <h2>Base file</h2>
+          <h2>
+            <label htmlFor="biome-config-input">Base file</label>
+          </h2>
         </div>
         <HidePanelButton label="Hide base file" onHide={props.onHide} />
       </div>
       <textarea
-        aria-label="Biome config input"
+        id="biome-config-input"
         value={props.importText}
         onChange={(event) => props.onChange(event.target.value)}
         spellCheck={false}

@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import type { ReviewSnapshot, RuleChoice } from '../../domain/types'
 import { ImportPanel } from '../panels/ImportPanel'
 import { OutputPanel } from '../panels/OutputPanel'
@@ -24,12 +25,17 @@ type ReviewWorkspaceProps = {
 }
 
 export function ReviewWorkspace({ controller }: ReviewWorkspaceProps) {
+  const panelActions = usePanelVisibilityActions(controller.updatePanelVisibility)
   return (
     <section
       className={getWorkspaceClassName(controller.isInputVisible, controller.isOutputVisible)}
       aria-label="Rule review workspace"
     >
-      <InputSlot controller={controller} />
+      <InputSlot
+        controller={controller}
+        onHide={panelActions.hideInput}
+        onShow={panelActions.showInput}
+      />
       <RuleStage
         activeRule={controller.activeRule}
         hasSelectedCategory={controller.hasSelectedCategory}
@@ -37,45 +43,67 @@ export function ReviewWorkspace({ controller }: ReviewWorkspaceProps) {
         rules={controller.visibleRules}
         onChoose={controller.chooseRule}
       />
-      <OutputSlot controller={controller} />
+      <OutputSlot
+        controller={controller}
+        onHide={panelActions.hideOutput}
+        onShow={panelActions.showOutput}
+      />
     </section>
   )
 }
 
-function InputSlot({ controller }: ReviewWorkspaceProps) {
+type PanelSlotProps = ReviewWorkspaceProps & { onHide: () => void; onShow: () => void }
+
+function InputSlot({ controller, onHide, onShow }: PanelSlotProps) {
   return (
     <PanelVisibilitySlot
       isVisible={controller.isInputVisible}
       revealLabel="Show base file"
       side="input"
-      onShow={() => controller.updatePanelVisibility({ inputVisible: true })}
+      onShow={onShow}
     >
       <ImportPanel
         errorText={controller.errorText}
         importText={controller.importText}
         onChange={controller.setImportText}
-        onHide={() => controller.updatePanelVisibility({ inputVisible: false })}
+        onHide={onHide}
         onStart={controller.startReview}
       />
     </PanelVisibilitySlot>
   )
 }
 
-function OutputSlot({ controller }: ReviewWorkspaceProps) {
+function OutputSlot({ controller, onHide, onShow }: PanelSlotProps) {
   return (
     <PanelVisibilitySlot
       isVisible={controller.isOutputVisible}
       revealLabel="Show biome.json"
       side="output"
-      onShow={() => controller.updatePanelVisibility({ outputVisible: true })}
+      onShow={onShow}
     >
       <OutputPanel
         choices={controller.choices}
         outputText={controller.outputText}
-        onHide={() => controller.updatePanelVisibility({ outputVisible: false })}
+        onHide={onHide}
       />
     </PanelVisibilitySlot>
   )
+}
+
+function usePanelVisibilityActions(
+  updateVisibility: ReviewWorkspaceProps['controller']['updatePanelVisibility'],
+) {
+  const hideInput = useCallback(() => updateVisibility({ inputVisible: false }), [updateVisibility])
+  const hideOutput = useCallback(
+    () => updateVisibility({ outputVisible: false }),
+    [updateVisibility],
+  )
+  const showInput = useCallback(() => updateVisibility({ inputVisible: true }), [updateVisibility])
+  const showOutput = useCallback(
+    () => updateVisibility({ outputVisible: true }),
+    [updateVisibility],
+  )
+  return { hideInput, hideOutput, showInput, showOutput }
 }
 
 function getWorkspaceClassName(isInputVisible: boolean, isOutputVisible: boolean) {

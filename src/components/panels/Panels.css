@@ -2,7 +2,8 @@
 .output-panel {
   background: #f6f1e8;
   border: 1px solid #151515;
-  contain: layout paint;
+  contain: layout;
+  min-width: 0;
   min-height: min(800px, calc(100svh - 92px));
   padding: 18px;
   transform-origin: center left;
@@ -42,6 +43,7 @@ textarea {
     monospace;
   height: 390px;
   margin: 10px 0;
+  max-width: 100%;
   padding: 12px;
   resize: none;
   width: 100%;
@@ -53,15 +55,16 @@ textarea {
   margin: 0;
 }
 
-.output-panel pre {
+.output-code {
   background: #151515;
   color: #f9f1dd;
   font:
     12px / 1.5 "Cascadia Code",
     Consolas,
     monospace;
-  height: min(640px, calc(100svh - 255px));
+  height: min(640px, calc(100svh - 285px));
   margin: 16px 0 0;
+  max-width: 100%;
   overflow: auto;
   padding: 14px;
   text-align: left;

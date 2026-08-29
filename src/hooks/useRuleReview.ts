@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { biomeRules } from '../domain/biomeRules'
 import {
   buildBiomeConfig,
@@ -28,7 +28,12 @@ import {
 
 const defaultInput = '{\n  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json"\n}\n'
 const ruleDocPrefetchLimit = 6
-type StoreReviewSnapshot = (nextSnapshot: ReviewSnapshot, shouldSyncImportText?: boolean) => void
+const mountedRuleFrameCount = 3
+type ReviewSnapshotUpdater = (currentSnapshot: ReviewSnapshot) => ReviewSnapshot
+type StoreReviewSnapshot = (updateSnapshot: ReviewSnapshotUpdater) => void
+type SetReviewSnapshot = (
+  snapshot: ReviewSnapshot | ((currentSnapshot: ReviewSnapshot) => ReviewSnapshot),
+) => void
 
 export function useRuleReview() {
   const [snapshot, setSnapshot] = useState(() => loadInitialSnapshot())
@@ -44,17 +49,34 @@ export function useRuleReview() {
     setErrorText,
     setOutgoingDecision,
   )
+  const dialogActions = useResetDialogActions(actions.resetReview, setIsResetDialogOpen)
 
   return {
     ...state,
     ...actions,
-    resetReview: () => {
-      actions.resetReview()
-      setIsResetDialogOpen(false)
-    },
+    ...dialogActions,
     setImportText,
-    setIsResetDialogOpen,
   }
+}
+
+function useResetDialogActions(resetReviewAction: () => void, setIsOpen: (value: boolean) => void) {
+  const resetTriggerRef = useRef<HTMLElement | null>(null)
+  const closeResetDialog = useCallback(() => {
+    setIsOpen(false)
+    window.requestAnimationFrame(() => resetTriggerRef.current?.focus())
+  }, [setIsOpen])
+  const openResetDialog = useCallback(
+    (trigger: HTMLElement) => {
+      resetTriggerRef.current = trigger
+      setIsOpen(true)
+    },
+    [setIsOpen],
+  )
+  const resetReview = useCallback(() => {
+    resetReviewAction()
+    closeResetDialog()
+  }, [closeResetDialog, resetReviewAction])
+  return { closeResetDialog, openResetDialog, resetReview }
 }
 
 function useReviewState(
@@ -64,8 +86,15 @@ function useReviewState(
   isResetDialogOpen: boolean,
   outgoingDecision: RuleChoice['decision'] | null,
 ) {
-  const selectedCategories = useMemo(() => getSelectedCategories(snapshot), [snapshot])
-  const baseConfig = useMemo(() => safeParseConfig(snapshot.baseConfigText), [snapshot])
+  const storedSelectedCategories = snapshot.filters?.selectedCategories
+  const selectedCategories = useMemo(
+    () => storedSelectedCategories ?? [...ruleCategories],
+    [storedSelectedCategories],
+  )
+  const baseConfig = useMemo(
+    () => safeParseConfig(snapshot.baseConfigText),
+    [snapshot.baseConfigText],
+  )
   const filteredRules = useMemo(
     () => filterRulesByCategories(biomeRules, selectedCategories),
     [selectedCategories],
@@ -74,65 +103,192 @@ function useReviewState(
     () => getReviewableRules(filteredRules, baseConfig, snapshot.choices),
     [baseConfig, filteredRules, snapshot.choices],
   )
+  const outputText = useMemo(
+    () => formatBiomeConfig(buildBiomeConfig(baseConfig, snapshot.choices)),
+    [baseConfig, snapshot.choices],
+  )
+  const prefetchRuleUrls = useMemo(() => getRuleDocPrefetchUrls(pendingRules), [pendingRules])
+  const visibleRules = useMemo(() => getVisibleRuleWindow(pendingRules, 0), [pendingRules])
   const completedRules = getCompletedRuleCount(filteredRules.length, pendingRules.length, 0)
 
   return buildReviewState(snapshot, importText, errorText, {
     completedRules,
     filteredRules,
     isResetDialogOpen,
+    outputText,
     outgoingDecision,
     pendingRules,
+    prefetchRuleUrls,
     selectedCategories,
+    visibleRules,
   })
 }
 
 function useReviewActions(
   state: ReturnType<typeof buildReviewState>,
-  setSnapshot: (snapshot: ReviewSnapshot) => void,
+  setSnapshot: SetReviewSnapshot,
   setImportText: (value: string) => void,
   setErrorText: (value: string) => void,
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
 ) {
-  const storeSnapshot = (nextSnapshot: ReviewSnapshot, shouldSyncImportText = false) => {
-    saveReviewSnapshot(window.localStorage, nextSnapshot)
-    if (shouldSyncImportText) setImportText(nextSnapshot.baseConfigText)
-    setSnapshot(nextSnapshot)
-  }
+  const storeSnapshot = useSnapshotStore(setSnapshot)
+  const primaryActions = usePrimaryReviewActions({
+    setErrorText,
+    setImportText,
+    setOutgoingDecision,
+    setSnapshot,
+    state,
+    storeSnapshot,
+  })
+  const snapshotActions = useSnapshotActions(storeSnapshot)
+  return { ...primaryActions, ...snapshotActions }
+}
 
+function useSnapshotActions(storeSnapshot: StoreReviewSnapshot) {
+  const toggleCategoryAction = useCallback(
+    (category: RuleCategory) => toggleCategory(category, storeSnapshot),
+    [storeSnapshot],
+  )
+  const updatePanelVisibilityAction = useCallback(
+    (patch: Partial<NonNullable<ReviewSnapshot['panels']>>) =>
+      updatePanelVisibility(patch, storeSnapshot),
+    [storeSnapshot],
+  )
   return {
-    ...createReviewActions(state, storeSnapshot, setErrorText, setOutgoingDecision),
-    resetReview: () => resetReview(setSnapshot, setImportText, setErrorText),
+    toggleCategory: toggleCategoryAction,
+    updatePanelVisibility: updatePanelVisibilityAction,
   }
 }
 
-function createReviewActions(
-  state: ReturnType<typeof buildReviewState>,
-  storeSnapshot: StoreReviewSnapshot,
-  setErrorText: (value: string) => void,
+type PrimaryReviewActionDependencies = {
+  state: ReturnType<typeof buildReviewState>
+  setSnapshot: SetReviewSnapshot
+  setImportText: (value: string) => void
+  setErrorText: (value: string) => void
+  setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void
+  storeSnapshot: StoreReviewSnapshot
+}
+
+function usePrimaryReviewActions(dependencies: PrimaryReviewActionDependencies) {
+  const { setErrorText, setImportText, setOutgoingDecision, setSnapshot, state, storeSnapshot } =
+    dependencies
+  const { cancelDecisionTimer, decisionTimer } = usePendingDecisionTimer(setOutgoingDecision)
+  const chooseRule = useChooseRuleAction(
+    state.activeRule,
+    state.outgoingDecision,
+    decisionTimer,
+    storeSnapshot,
+    setOutgoingDecision,
+  )
+  const startReview = useStartReviewAction(
+    state.importText,
+    cancelDecisionTimer,
+    storeSnapshot,
+    setImportText,
+    setErrorText,
+  )
+  const resetReview = useResetReviewAction(
+    cancelDecisionTimer,
+    setSnapshot,
+    setImportText,
+    setErrorText,
+  )
+  return { chooseRule, resetReview, startReview }
+}
+
+function useSnapshotStore(setSnapshot: SetReviewSnapshot) {
+  return useCallback(
+    (updateSnapshot: ReviewSnapshotUpdater) => {
+      setSnapshot((currentSnapshot) => {
+        const nextSnapshot = updateSnapshot(currentSnapshot)
+        saveReviewSnapshot(window.localStorage, nextSnapshot)
+        return nextSnapshot
+      })
+    },
+    [setSnapshot],
+  )
+}
+
+function usePendingDecisionTimer(
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
 ) {
-  return {
-    chooseRule: (decision: RuleChoice['decision']) =>
-      chooseRule(state, decision, storeSnapshot, setOutgoingDecision),
-    startReview: () => startReview(state, storeSnapshot, setErrorText),
-    toggleCategory: (category: RuleCategory) => toggleCategory(state, category, storeSnapshot),
-    updatePanelVisibility: (patch: Partial<NonNullable<ReviewSnapshot['panels']>>) =>
-      updatePanelVisibility(state, patch, storeSnapshot),
-  }
+  const decisionTimer = useRef<number | null>(null)
+  const cancelDecisionTimer = useCallback(() => {
+    if (decisionTimer.current === null) return
+    window.clearTimeout(decisionTimer.current)
+    decisionTimer.current = null
+    setOutgoingDecision(null)
+  }, [setOutgoingDecision])
+  useEffect(() => () => clearDecisionTimer(decisionTimer), [])
+  return { cancelDecisionTimer, decisionTimer }
+}
+
+function useChooseRuleAction(
+  activeRule: BiomeRule | undefined,
+  outgoingDecision: RuleChoice['decision'] | null,
+  decisionTimer: { current: number | null },
+  storeSnapshot: StoreReviewSnapshot,
+  setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
+) {
+  return useCallback(
+    (decision: RuleChoice['decision']) =>
+      chooseRule(
+        activeRule,
+        outgoingDecision,
+        decision,
+        decisionTimer,
+        storeSnapshot,
+        setOutgoingDecision,
+      ),
+    [activeRule, decisionTimer, outgoingDecision, setOutgoingDecision, storeSnapshot],
+  )
+}
+
+function useStartReviewAction(
+  importText: string,
+  cancelDecisionTimer: () => void,
+  storeSnapshot: StoreReviewSnapshot,
+  setImportText: (value: string) => void,
+  setErrorText: (value: string) => void,
+) {
+  return useCallback(() => {
+    cancelDecisionTimer()
+    startReview(importText, storeSnapshot, setImportText, setErrorText)
+  }, [cancelDecisionTimer, importText, setErrorText, setImportText, storeSnapshot])
+}
+
+function useResetReviewAction(
+  cancelDecisionTimer: () => void,
+  setSnapshot: SetReviewSnapshot,
+  setImportText: (value: string) => void,
+  setErrorText: (value: string) => void,
+) {
+  return useCallback(() => {
+    cancelDecisionTimer()
+    resetReview(setSnapshot, setImportText, setErrorText)
+  }, [cancelDecisionTimer, setErrorText, setImportText, setSnapshot])
+}
+
+function clearDecisionTimer(decisionTimer: { current: number | null }) {
+  if (decisionTimer.current === null) return
+  window.clearTimeout(decisionTimer.current)
+  decisionTimer.current = null
 }
 
 function chooseRule(
-  state: ReturnType<typeof buildReviewState>,
+  activeRule: BiomeRule | undefined,
+  outgoingDecision: RuleChoice['decision'] | null,
   decision: RuleChoice['decision'],
+  decisionTimer: { current: number | null },
   storeSnapshot: StoreReviewSnapshot,
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
 ) {
-  if (!state.activeRule || state.outgoingDecision) return
-  const chosenRule = state.activeRule
+  if (!activeRule || outgoingDecision) return
   playClickTone(decision)
   setOutgoingDecision(decision)
-  window.setTimeout(() => {
-    saveRuleDecision(state, chosenRule, decision, storeSnapshot)
+  decisionTimer.current = window.setTimeout(() => {
+    storeSnapshot((snapshot) => saveRuleDecision(snapshot, activeRule, decision))
+    decisionTimer.current = null
     setOutgoingDecision(null)
   }, 280)
 }
@@ -145,9 +301,12 @@ function buildReviewState(
     completedRules: number
     filteredRules: BiomeRule[]
     isResetDialogOpen: boolean
+    outputText: string
     outgoingDecision: RuleChoice['decision'] | null
     pendingRules: BiomeRule[]
+    prefetchRuleUrls: string[]
     selectedCategories: RuleCategory[]
+    visibleRules: BiomeRule[]
   },
 ) {
   const isInputVisible = snapshot.panels?.inputVisible ?? true
@@ -163,26 +322,27 @@ function buildReviewState(
     isInputVisible,
     isOutputVisible,
     isResetDialogOpen: derived.isResetDialogOpen,
-    outputText: formatBiomeConfig(
-      buildBiomeConfig(safeParseConfig(snapshot.baseConfigText), snapshot.choices),
-    ),
+    outputText: derived.outputText,
     outgoingDecision: derived.outgoingDecision,
-    prefetchRuleUrls: getRuleDocPrefetchUrls(derived.pendingRules),
+    prefetchRuleUrls: derived.prefetchRuleUrls,
     progress: getProgressPercent(derived.filteredRules.length, derived.completedRules),
     selectedCategories: derived.selectedCategories,
     snapshot,
-    visibleRules: getVisibleRuleWindow(derived.pendingRules, 0),
+    visibleRules: derived.visibleRules,
   }
 }
 
 function startReview(
-  state: ReturnType<typeof buildReviewState>,
+  importText: string,
   storeSnapshot: StoreReviewSnapshot,
+  setImportText: (value: string) => void,
   setErrorText: (value: string) => void,
 ) {
   try {
-    const config = parseBiomeConfig(state.importText)
-    storeSnapshot(createImportedSnapshot(state.snapshot, config), true)
+    const config = parseBiomeConfig(importText)
+    const formattedConfig = formatBiomeConfig(config)
+    storeSnapshot((snapshot) => createImportedSnapshot(snapshot, formattedConfig))
+    setImportText(formattedConfig)
     setErrorText('')
   } catch (error) {
     setErrorText(error instanceof Error ? error.message : 'Invalid config')
@@ -190,7 +350,7 @@ function startReview(
 }
 
 function resetReview(
-  setSnapshot: (snapshot: ReviewSnapshot) => void,
+  setSnapshot: SetReviewSnapshot,
   setImportText: (value: string) => void,
   setErrorText: (value: string) => void,
 ) {
@@ -200,44 +360,40 @@ function resetReview(
   setSnapshot(createInitialSnapshot())
 }
 
-function toggleCategory(
-  state: ReturnType<typeof buildReviewState>,
-  category: RuleCategory,
-  storeSnapshot: StoreReviewSnapshot,
-) {
-  storeSnapshot({
-    ...state.snapshot,
+function toggleCategory(category: RuleCategory, storeSnapshot: StoreReviewSnapshot) {
+  storeSnapshot((snapshot) => ({
+    ...snapshot,
     currentIndex: 0,
-    filters: { selectedCategories: getToggledCategories(state.selectedCategories, category) },
-  })
+    filters: {
+      selectedCategories: getToggledCategories(getSelectedCategories(snapshot), category),
+    },
+  }))
 }
 
 function updatePanelVisibility(
-  state: ReturnType<typeof buildReviewState>,
   visibilityPatch: Partial<NonNullable<ReviewSnapshot['panels']>>,
   storeSnapshot: StoreReviewSnapshot,
 ) {
-  storeSnapshot({
-    ...state.snapshot,
+  storeSnapshot((snapshot) => ({
+    ...snapshot,
     panels: {
-      inputVisible: state.isInputVisible,
-      outputVisible: state.isOutputVisible,
+      inputVisible: snapshot.panels?.inputVisible ?? true,
+      outputVisible: snapshot.panels?.outputVisible ?? true,
       ...visibilityPatch,
     },
-  })
+  }))
 }
 
 function saveRuleDecision(
-  state: ReturnType<typeof buildReviewState>,
+  snapshot: ReviewSnapshot,
   rule: BiomeRule,
   decision: RuleChoice['decision'],
-  storeSnapshot: StoreReviewSnapshot,
 ) {
-  storeSnapshot({
-    ...state.snapshot,
-    choices: appendRuleChoice(state.snapshot.choices, rule, decision),
-    currentIndex: state.snapshot.currentIndex + 1,
-  })
+  return {
+    ...snapshot,
+    choices: appendRuleChoice(snapshot.choices, rule, decision),
+    currentIndex: snapshot.currentIndex + 1,
+  }
 }
 
 function playClickTone(decision: RuleChoice['decision']) {
@@ -250,9 +406,9 @@ function playClickTone(decision: RuleChoice['decision']) {
   oscillator.stop(audioContext.currentTime + 0.045)
 }
 
-function createImportedSnapshot(snapshot: ReviewSnapshot, config: BiomeConfig): ReviewSnapshot {
+function createImportedSnapshot(snapshot: ReviewSnapshot, baseConfigText: string): ReviewSnapshot {
   return {
-    baseConfigText: formatBiomeConfig(config),
+    baseConfigText,
     choices: [],
     currentIndex: 0,
     filters: snapshot.filters,
@@ -269,7 +425,9 @@ function safeParseConfig(inputText: string): BiomeConfig {
 }
 
 function getRuleDocPrefetchUrls(pendingRules: BiomeRule[]) {
-  return pendingRules.slice(0, ruleDocPrefetchLimit).map((rule) => rule.url)
+  return pendingRules
+    .slice(mountedRuleFrameCount, mountedRuleFrameCount + ruleDocPrefetchLimit)
+    .map((rule) => rule.url)
 }
 
 function loadInitialSnapshot(): ReviewSnapshot {
