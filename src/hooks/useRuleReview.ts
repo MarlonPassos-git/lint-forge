@@ -27,8 +27,6 @@ import {
 } from '../storage/localReviewStore'
 
 const defaultInput = '{\n  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json"\n}\n'
-const ruleDocPrefetchLimit = 6
-const mountedRuleFrameCount = 3
 type ReviewSnapshotUpdater = (currentSnapshot: ReviewSnapshot) => ReviewSnapshot
 type StoreReviewSnapshot = (updateSnapshot: ReviewSnapshotUpdater) => void
 type SetReviewSnapshot = (
@@ -107,7 +105,6 @@ function useReviewState(
     () => formatBiomeConfig(buildBiomeConfig(baseConfig, snapshot.choices)),
     [baseConfig, snapshot.choices],
   )
-  const prefetchRuleUrls = useMemo(() => getRuleDocPrefetchUrls(pendingRules), [pendingRules])
   const visibleRules = useMemo(() => getVisibleRuleWindow(pendingRules, 0), [pendingRules])
   const completedRules = getCompletedRuleCount(filteredRules.length, pendingRules.length, 0)
 
@@ -118,7 +115,6 @@ function useReviewState(
     outputText,
     outgoingDecision,
     pendingRules,
-    prefetchRuleUrls,
     selectedCategories,
     visibleRules,
   })
@@ -304,7 +300,6 @@ function buildReviewState(
     outputText: string
     outgoingDecision: RuleChoice['decision'] | null
     pendingRules: BiomeRule[]
-    prefetchRuleUrls: string[]
     selectedCategories: RuleCategory[]
     visibleRules: BiomeRule[]
   },
@@ -324,7 +319,6 @@ function buildReviewState(
     isResetDialogOpen: derived.isResetDialogOpen,
     outputText: derived.outputText,
     outgoingDecision: derived.outgoingDecision,
-    prefetchRuleUrls: derived.prefetchRuleUrls,
     progress: getProgressPercent(derived.filteredRules.length, derived.completedRules),
     selectedCategories: derived.selectedCategories,
     snapshot,
@@ -422,12 +416,6 @@ function safeParseConfig(inputText: string): BiomeConfig {
   } catch {
     return {}
   }
-}
-
-function getRuleDocPrefetchUrls(pendingRules: BiomeRule[]) {
-  return pendingRules
-    .slice(mountedRuleFrameCount, mountedRuleFrameCount + ruleDocPrefetchLimit)
-    .map((rule) => rule.url)
 }
 
 function loadInitialSnapshot(): ReviewSnapshot {

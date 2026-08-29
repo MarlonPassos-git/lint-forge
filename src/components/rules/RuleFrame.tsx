@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import type { BiomeRule, RuleChoice } from '../../domain/types'
+import { useDeferredRuleDocument } from '../../hooks/useDeferredRuleDocument'
 
 type RuleFrameProps = {
   decision: RuleChoice['decision'] | null
@@ -16,6 +17,7 @@ export const RuleFrame = memo(function RuleFrame({
 }: RuleFrameProps) {
   const headingId = getRuleHeadingId(rule)
   const isHidden = !isActive
+  const documentSource = useDeferredRuleDocument(rule.url)
 
   return (
     <article
@@ -38,7 +40,7 @@ export const RuleFrame = memo(function RuleFrame({
         className="docs-frame"
         aria-hidden={isHidden || undefined}
         title={`${rule.name} documentation`}
-        src={rule.url}
+        src={documentSource}
         tabIndex={isActive ? 0 : -1}
         loading="eager"
       />

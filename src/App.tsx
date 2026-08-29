@@ -2,12 +2,10 @@ import './App.css'
 import { ReviewWorkspace } from './components/layout/ReviewWorkspace'
 import { ResetDialog } from './components/reset/ResetDialog'
 import { ReviewHeader } from './components/review/ReviewHeader'
-import { useRuleDocPrefetch } from './hooks/useRuleDocPrefetch'
 import { useRuleReview } from './hooks/useRuleReview'
 
 function App() {
   const review = useRuleReview()
-  useRuleDocPrefetch(review.prefetchRuleUrls)
 
   return (
     <main className="app-shell">
