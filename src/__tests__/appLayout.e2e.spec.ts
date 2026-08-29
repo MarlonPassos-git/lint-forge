@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test'
+import { expect, type Locator, type Page, test } from '@playwright/test'
 
 type ReviewLayoutMetrics = {
   documentPrefetchCount: number
@@ -52,15 +52,40 @@ test('keeps panel toggles usable without horizontal overflow', async ({ page }) 
 })
 
 test('keeps mobile review layout free of horizontal overflow', async ({ page }) => {
-  await page.setViewportSize({ height: 900, width: 390 })
+  await page.setViewportSize({ height: 900, width: 320 })
   await page.goto('/')
 
   await expect(page.getByRole('heading', { name: 'Lint Forge' })).toBeVisible()
+  const errorButton = page.getByRole('button', { name: 'Error' })
+  await errorButton.scrollIntoViewIfNeeded()
+  await expectControlInsideViewport(errorButton, 320, 900)
   expect(await getHorizontalOverflow(page)).toBe(0)
+})
+
+test('keeps every desktop decision control inside the viewport', async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 })
+  await page.goto('/')
+
+  for (const decision of ['Off', 'Info', 'Warn', 'Error']) {
+    await expectControlInsideViewport(page.getByRole('button', { name: decision }), 1440, 900)
+  }
 })
 
 async function getHorizontalOverflow(page: Page) {
   return page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   )
+}
+
+async function expectControlInsideViewport(
+  control: Locator,
+  viewportWidth: number,
+  viewportHeight: number,
+) {
+  const bounds = await control.boundingBox()
+  expect(bounds).not.toBeNull()
+  expect(bounds?.x).toBeGreaterThanOrEqual(0)
+  expect((bounds?.x ?? 0) + (bounds?.width ?? 0)).toBeLessThanOrEqual(viewportWidth)
+  expect(bounds?.y).toBeGreaterThanOrEqual(0)
+  expect((bounds?.y ?? 0) + (bounds?.height ?? 0)).toBeLessThanOrEqual(viewportHeight)
 }

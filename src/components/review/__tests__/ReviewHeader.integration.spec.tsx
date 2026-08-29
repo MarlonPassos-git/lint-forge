@@ -22,6 +22,14 @@ describe('ReviewHeader', () => {
     expect(screen.getByText(/not an official Biome tool/i)).toBeInTheDocument()
     expect(screen.getByText('25%')).toBeInTheDocument()
     expect(screen.getByText('2/8')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Review progress' })).toHaveAttribute(
+      'value',
+      '25',
+    )
+    expect(screen.getByRole('progressbar', { name: 'Review progress' })).toHaveAttribute(
+      'max',
+      '100',
+    )
 
     await userEvent.click(screen.getByRole('button', { name: 'Reset review' }))
 

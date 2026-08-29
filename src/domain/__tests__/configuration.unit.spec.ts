@@ -36,6 +36,18 @@ describe('parseBiomeConfig', () => {
   it('throws with offending value for invalid JSON', () => {
     expect(() => parseBiomeConfig('{bad')).toThrow('Invalid biome config: "{bad"')
   })
+
+  it.each([
+    'null',
+    '[]',
+    '"text"',
+    'true',
+    '42',
+  ])('throws for JSON value %s instead of an object', (inputText) => {
+    expect(() => parseBiomeConfig(inputText)).toThrow(
+      `Invalid biome config: "${inputText}"; expected JSON object`,
+    )
+  })
 })
 
 describe('extractConfiguredRuleKeys', () => {

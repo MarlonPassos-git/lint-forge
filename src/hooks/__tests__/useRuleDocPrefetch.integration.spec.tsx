@@ -18,6 +18,16 @@ describe('useRuleDocPrefetch', () => {
     )
     expect(getPreconnectLink()).toHaveAttribute('href', 'https://biomejs.dev')
   })
+
+  it('preserves resource hints when an equivalent URL array rerenders', async () => {
+    const { rerender } = render(<PrefetchProbe urls={['https://biomejs.dev/one']} />)
+    await waitFor(() => expect(getPrefetchLinks()).toHaveLength(2))
+    const initialPrefetchLink = getDocumentPrefetchLinks()[0]
+
+    rerender(<PrefetchProbe urls={['https://biomejs.dev/one']} />)
+
+    expect(getDocumentPrefetchLinks()[0]).toBe(initialPrefetchLink)
+  })
 })
 
 function PrefetchProbe({ urls }: { urls: string[] }) {
@@ -34,10 +44,13 @@ function getPreconnectLink() {
 }
 
 function getDocumentPrefetchHrefs() {
+  return getDocumentPrefetchLinks().map((link) => link.href)
+}
+
+function getDocumentPrefetchLinks() {
   return Array.from(
     document.querySelectorAll<HTMLLinkElement>(
       'link[data-biome-rule-prefetch="true"][rel="prefetch"]',
     ),
-    (link) => link.href,
   )
 }

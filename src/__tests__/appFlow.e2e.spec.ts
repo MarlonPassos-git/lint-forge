@@ -8,7 +8,9 @@ test('reviews a rule and shows generated config output', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Warn' }).click()
 
-  await expect(page.locator('pre')).toContainText('"warn"')
+  await expect(page.getByRole('textbox', { name: 'Generated biome.json code' })).toHaveValue(
+    /"warn"/,
+  )
   await expect(page.getByText('1 decisions saved locally.')).toBeVisible()
 })
 

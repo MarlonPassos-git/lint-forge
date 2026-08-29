@@ -12,12 +12,24 @@ describe('App import and reset flow', () => {
   it('announces invalid imported config errors', async () => {
     render(<App />)
 
-    fireEvent.change(screen.getByLabelText('Biome config input'), {
+    fireEvent.change(screen.getByLabelText('Base file'), {
       target: { value: '{ invalid json' },
     })
     await userEvent.click(screen.getByRole('button', { name: 'Start from this config' }))
 
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid biome config')
+  })
+
+  it.each(['null', '[]', 'true'])('rejects non-object JSON config %s', async (inputText) => {
+    render(<App />)
+
+    fireEvent.change(screen.getByLabelText('Base file'), {
+      target: { value: inputText },
+    })
+    await userEvent.click(screen.getByRole('button', { name: 'Start from this config' }))
+
+    expect(screen.getByRole('alert')).toHaveTextContent('expected JSON object')
+    expect(screen.getByRole('heading', { name: 'Lint Forge' })).toBeVisible()
   })
 
   it('requires modal confirmation before resetting review state', async () => {

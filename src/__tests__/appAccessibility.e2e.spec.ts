@@ -1,24 +1,79 @@
 import { expect, type Page, test } from '@playwright/test'
 
-test('keeps docs iframes out of the keyboard tab order', async ({ page }) => {
+test('keeps only the active docs iframe in the keyboard tab order', async ({ page }) => {
   await page.goto('/')
 
   const focusedNames = await collectKeyboardControlNames(page, 15)
 
   expect(focusedNames).toContain('Reset review')
-  expect(focusedNames).toContain('Biome config input')
+  expect(focusedNames).toContain('Base file')
   expect(focusedNames).toContain('Warn')
-  expect(focusedNames).not.toContain('noAriaHiddenOnFocusable documentation')
+  expect(focusedNames).toContain('noAccessKey documentation')
+})
+
+test('exposes only the active rule card and documentation frame', async ({ page }) => {
+  await page.goto('/')
+
+  const frames = page.locator('iframe.docs-frame')
+  const cards = page.getByRole('article', { includeHidden: true })
+  await expect(frames).toHaveCount(3)
+  await expect(cards).toHaveCount(3)
+  await expect(frames.nth(0)).toHaveAttribute('tabindex', '0')
+  await expect(frames.nth(0)).not.toHaveAttribute('aria-hidden')
+
+  for (const frameIndex of [1, 2]) {
+    await expect(frames.nth(frameIndex)).toHaveAttribute('tabindex', '-1')
+    await expect(frames.nth(frameIndex)).toHaveAttribute('aria-hidden', 'true')
+    await expect(cards.nth(frameIndex)).toHaveAttribute('inert', '')
+    await expect(cards.nth(frameIndex)).toHaveAttribute('aria-hidden', 'true')
+  }
+
+  await expect(page.getByRole('article').first()).toHaveAccessibleName('noAccessKey')
+})
+
+test('uses a named semantic progress indicator', async ({ page }) => {
+  await page.goto('/')
+
+  const progress = page.getByRole('progressbar', { name: 'Review progress' })
+  await expect(progress).toHaveAttribute('max', '100')
+  await expect(progress).toHaveAttribute('value', '0')
 })
 
 test('opens reset confirmation as a named modal dialog', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByRole('button', { name: 'Reset review' }).click()
+  const resetButton = page.getByRole('button', { name: 'Reset review' })
+  await resetButton.focus()
+  await resetButton.click()
 
   await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Reset everything' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cancel' })).toBeFocused()
+})
+
+test('cancels reset with Escape and restores focus to its trigger', async ({ page }) => {
+  await page.goto('/')
+
+  const resetButton = page.getByRole('button', { name: 'Reset review' })
+  await resetButton.click()
+  await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeVisible()
+
+  await page.keyboard.press('Escape')
+
+  await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeHidden()
+  await expect(resetButton).toBeFocused()
+})
+
+test('cancels reset from the form and restores focus to its trigger', async ({ page }) => {
+  await page.goto('/')
+
+  const resetButton = page.getByRole('button', { name: 'Reset review' })
+  await resetButton.click()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+
+  await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeHidden()
+  await expect(resetButton).toBeFocused()
 })
 
 async function collectKeyboardControlNames(page: Page, expectedNameCount: number) {
@@ -39,9 +94,17 @@ async function getFocusedControlName(page: Page) {
 
     if (!focusedElement) return ''
     if (focusedElement === document.body) return ''
-    if (focusedElement instanceof HTMLInputElement) {
+    if (
+      focusedElement instanceof HTMLInputElement ||
+      focusedElement instanceof HTMLTextAreaElement
+    ) {
       return focusedElement.labels?.[0]?.textContent?.trim() ?? ''
     }
-    return focusedElement.getAttribute('aria-label') ?? focusedElement.textContent?.trim() ?? ''
+    return (
+      focusedElement.getAttribute('aria-label') ??
+      focusedElement.getAttribute('title') ??
+      focusedElement.textContent?.trim() ??
+      ''
+    )
   })
 }

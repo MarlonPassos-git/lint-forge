@@ -29,7 +29,7 @@ const visibleRules: BiomeRule[] = [
 ]
 
 describe('RuleStage', () => {
-  it('keeps three documentation frames mounted and outside tab order', () => {
+  it('keeps three documentation frames mounted while exposing only the active frame', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
@@ -41,9 +41,22 @@ describe('RuleStage', () => {
     )
 
     expect(screen.getAllByTitle(/documentation/)).toHaveLength(3)
-    for (const frame of screen.getAllByTitle(/documentation/)) {
-      expect(frame).toHaveAttribute('tabindex', '-1')
-    }
+    const [activeFrame, nextFrame, laterFrame] = screen.getAllByTitle(/documentation/)
+    expect(activeFrame).toHaveAttribute('tabindex', '0')
+    expect(activeFrame).not.toHaveAttribute('aria-hidden')
+    expect(nextFrame).toHaveAttribute('tabindex', '-1')
+    expect(nextFrame).toHaveAttribute('aria-hidden', 'true')
+    expect(laterFrame).toHaveAttribute('tabindex', '-1')
+    expect(laterFrame).toHaveAttribute('aria-hidden', 'true')
+
+    const articles = screen.getAllByRole('article', { hidden: true })
+    expect(articles[0]).toHaveAccessibleName(visibleRules[0].name)
+    expect(articles[1]).toHaveAttribute('inert')
+    expect(articles[1]).toHaveAttribute('aria-hidden', 'true')
+    expect(articles[2]).toHaveAttribute('inert')
+    expect(articles[2]).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByRole('group', { name: 'Rule decisions' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
   })
 
   it('reports the chosen decision and disables actions during pending choice', async () => {

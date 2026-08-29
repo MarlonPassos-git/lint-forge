@@ -25,7 +25,7 @@ describe('App persisted layout state', () => {
   it('hides and restores the base file panel without losing input', async () => {
     render(<App />)
 
-    fireEvent.change(screen.getByLabelText('Biome config input'), {
+    fireEvent.change(screen.getByLabelText('Base file'), {
       target: { value: '{"linter":{"rules":{}}}' },
     })
     await userEvent.click(screen.getByRole('button', { name: 'Hide base file' }))
@@ -35,7 +35,7 @@ describe('App persisted layout state', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Show base file' }))
 
-    expect(screen.getByLabelText('Biome config input')).toHaveValue('{"linter":{"rules":{}}}')
+    expect(screen.getByLabelText('Base file')).toHaveValue('{"linter":{"rules":{}}}')
   })
 
   it('restores hidden side panels from local storage', () => {

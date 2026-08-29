@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
@@ -7,6 +7,7 @@ import { QuietAudioContext } from '../test/audioFakes'
 
 describe('App review flow', () => {
   beforeEach(() => {
+    vi.useRealTimers()
     vi.unstubAllGlobals()
     window.localStorage.clear()
   })
@@ -16,6 +17,9 @@ describe('App review flow', () => {
 
     expect(screen.getByRole('heading', { name: 'Lint Forge' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Generated biome.json' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Generated biome.json code' })).toHaveAttribute(
+      'readonly',
+    )
     expect(screen.getByText(`0/${biomeRules.length}`)).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Rule categories' })).toBeInTheDocument()
     expect(screen.getByTitle(`${biomeRules[0].name} documentation`)).toBeInTheDocument()
@@ -26,12 +30,12 @@ describe('App review flow', () => {
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
-    await waitFor(() => expect(screen.getByText(/"warn"/)).toBeInTheDocument())
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"warn"'))
     await userEvent.click(screen.getByRole('button', { name: 'Info' }))
-    await waitFor(() => expect(screen.getByText(/"info"/)).toBeInTheDocument())
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"info"'))
     await userEvent.click(screen.getByRole('button', { name: 'Off' }))
 
-    expect(await screen.findByText(/"off"/)).toBeInTheDocument()
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"off"'))
     expect(screen.getByText('3 decisions saved locally.')).toBeInTheDocument()
   })
 
@@ -43,7 +47,7 @@ describe('App review flow', () => {
 
     expect(screen.getByRole('button', { name: 'Error' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Error' })).toHaveClass('is-selected-decision')
-    await waitFor(() => expect(screen.getByText(/"error"/)).toBeInTheDocument())
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"error"'))
   })
 
   it('moves active documentation after a decision is saved', async () => {
@@ -56,4 +60,21 @@ describe('App review flow', () => {
       expect(screen.getByTitle(`${biomeRules[1].name} documentation`)).toBeVisible(),
     )
   })
+
+  it('preserves a filter change while a decision animation finishes', () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
+    act(() => vi.advanceTimersByTime(280))
+
+    expect(screen.getByRole('checkbox', { name: 'JavaScript' })).not.toBeChecked()
+    expect(screen.getByText('1 decisions saved locally.')).toBeInTheDocument()
+  })
 })
+
+function getGeneratedConfig() {
+  return screen.getByRole<HTMLTextAreaElement>('textbox', { name: 'Generated biome.json code' })
+}
