@@ -6,9 +6,9 @@ Lint Forge helps developers import an existing Biome config, skip explicitly con
 
 ## Links
 
-- Site: https://lint-forge.marlonpassos.com.br/
-- Source: https://github.com/MarlonPassos-git/lint-forge
-- Biome: https://biomejs.dev/
+- [Live app](https://lint-forge.marlonpassos.com.br/)
+- [Source repository](https://github.com/MarlonPassos-git/lint-forge)
+- [Biome documentation](https://biomejs.dev/)
 
 ## Topics
 
