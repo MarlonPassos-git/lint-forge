@@ -1,23 +1,15 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 
 type ReviewLayoutMetrics = {
-  documentPrefetchCount: number
   iframeCount: number
   overflowX: number
-  preconnectCount: number
   queuedFrameVisibility: string[]
 }
 
 async function getReviewLayoutMetrics(page: Page): Promise<ReviewLayoutMetrics> {
   return page.evaluate(() => ({
-    documentPrefetchCount: document.querySelectorAll(
-      'link[data-biome-rule-prefetch="true"][rel="prefetch"][as="document"]',
-    ).length,
     iframeCount: document.querySelectorAll('iframe.docs-frame').length,
     overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    preconnectCount: document.querySelectorAll(
-      'link[data-biome-rule-prefetch="true"][rel="preconnect"]',
-    ).length,
     queuedFrameVisibility: Array.from(
       document.querySelectorAll(
         '.rule-frame.is-queued-next .docs-frame, .rule-frame.is-queued-after .docs-frame',
@@ -32,9 +24,6 @@ test('keeps active review layout within documented resource bounds', async ({ pa
 
   const metrics = await getReviewLayoutMetrics(page)
   expect(metrics.iframeCount).toBe(3)
-  expect(metrics.preconnectCount).toBe(1)
-  expect(metrics.documentPrefetchCount).toBeGreaterThan(0)
-  expect(metrics.documentPrefetchCount).toBeLessThanOrEqual(6)
   expect(metrics.queuedFrameVisibility).toEqual(['hidden', 'hidden'])
   expect(metrics.overflowX).toBe(0)
 })

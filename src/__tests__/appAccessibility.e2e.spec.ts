@@ -39,6 +39,20 @@ test('uses a named semantic progress indicator', async ({ page }) => {
   await expect(progress).toHaveAttribute('value', '0')
 })
 
+test('keeps eyebrow text above WCAG AA contrast', async ({ page }) => {
+  await page.goto('/')
+
+  const colors = await page.locator('.eyebrow').evaluate((eyebrow) => {
+    const style = getComputedStyle(eyebrow)
+    return {
+      background: getComputedStyle(document.documentElement).backgroundColor,
+      text: style.color,
+    }
+  })
+
+  expect(getContrastRatio(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5)
+})
+
 test('opens reset confirmation as a named modal dialog', async ({ page }) => {
   await page.goto('/')
 
@@ -114,4 +128,27 @@ async function getFocusedControlName(page: Page) {
       ''
     )
   })
+}
+
+function getContrastRatio(textColor: string, backgroundColor: string) {
+  const textLuminance = getRelativeLuminance(textColor)
+  const backgroundLuminance = getRelativeLuminance(backgroundColor)
+  const lighter = Math.max(textLuminance, backgroundLuminance)
+  const darker = Math.min(textLuminance, backgroundLuminance)
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+function getRelativeLuminance(rgbColor: string) {
+  const channels = rgbColor.match(/\d+/g)?.slice(0, 3).map(Number)
+  if (channels?.length !== 3) {
+    throw new Error(`Invalid color: ${rgbColor}; expected CSS rgb() value`)
+  }
+  const [red, green, blue] = channels.map(linearizeColorChannel)
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+}
+
+function linearizeColorChannel(channel: number) {
+  const normalizedChannel = channel / 255
+  if (normalizedChannel <= 0.04045) return normalizedChannel / 12.92
+  return ((normalizedChannel + 0.055) / 1.055) ** 2.4
 }

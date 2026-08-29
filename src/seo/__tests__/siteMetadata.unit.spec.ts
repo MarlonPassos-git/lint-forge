@@ -23,8 +23,8 @@ describe('site SEO metadata', () => {
     expect(readFileSync(join(publicPath, 'sitemap.xml'), 'utf8')).toContain(
       '<loc>https://lint-forge.marlonpassos.com.br/</loc>',
     )
-    expect(readFileSync(join(publicPath, 'llms.txt'), 'utf8')).toContain(
-      'Desktop Biome rule review app',
-    )
+    const agentGuidance = readFileSync(join(publicPath, 'llms.txt'), 'utf8')
+    expect(agentGuidance).toContain('Desktop Biome rule review app')
+    expect(agentGuidance).toContain('[Live app](https://lint-forge.marlonpassos.com.br/)')
   })
 })

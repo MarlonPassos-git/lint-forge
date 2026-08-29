@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { BiomeRule } from '../../../domain/types'
@@ -29,7 +29,7 @@ const visibleRules: BiomeRule[] = [
 ]
 
 describe('RuleStage', () => {
-  it('keeps three documentation frames mounted while exposing only the active frame', () => {
+  it('mounts three frames before loading docs and exposes only the active frame', async () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
@@ -44,6 +44,7 @@ describe('RuleStage', () => {
     const [activeFrame, nextFrame, laterFrame] = screen.getAllByTitle(/documentation/)
     expect(activeFrame).toHaveAttribute('tabindex', '0')
     expect(activeFrame).not.toHaveAttribute('aria-hidden')
+    expect(activeFrame).not.toHaveAttribute('src')
     expect(nextFrame).toHaveAttribute('tabindex', '-1')
     expect(nextFrame).toHaveAttribute('aria-hidden', 'true')
     expect(laterFrame).toHaveAttribute('tabindex', '-1')
@@ -57,6 +58,9 @@ describe('RuleStage', () => {
     expect(articles[2]).toHaveAttribute('aria-hidden', 'true')
     expect(screen.getByRole('group', { name: 'Rule decisions' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
+    await waitFor(() => expect(activeFrame).toHaveAttribute('src', visibleRules[0].url))
+    expect(nextFrame).toHaveAttribute('src', visibleRules[1].url)
+    expect(laterFrame).toHaveAttribute('src', visibleRules[2].url)
   })
 
   it('reports the chosen decision and disables actions during pending choice', async () => {
