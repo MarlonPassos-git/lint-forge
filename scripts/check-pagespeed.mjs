@@ -11,11 +11,15 @@ const categoryGates = [
   { id: 'agentic-browsing', requestName: 'AGENTIC_BROWSING', threshold: 100 },
 ]
 
+const strategyResults = []
 for (const strategy of strategies) {
   const analyses = await collectStrategyAnalyses(strategy)
   const medianScores = calculateMedianScores(analyses)
   printStrategyResult(strategy, analyses, medianScores)
-  assertPageSpeedThresholds(strategy, medianScores)
+  strategyResults.push({ strategy, medianScores })
+}
+for (const result of strategyResults) {
+  assertPageSpeedThresholds(result.strategy, result.medianScores)
 }
 
 function readRequiredEnvironment(environmentName) {
@@ -36,13 +40,13 @@ async function collectStrategyAnalyses(strategy) {
   const analyses = []
   for (let analysisIndex = 0; analysisIndex < analysisCount; analysisIndex += 1) {
     console.log(`${strategy}: running PageSpeed analysis ${analysisIndex + 1}/${analysisCount}`)
-    analyses.push(await requestPageSpeedAnalysis(strategy))
+    analyses.push(await requestPageSpeedAnalysis(strategy, analysisIndex))
   }
   return analyses
 }
 
-async function requestPageSpeedAnalysis(strategy) {
-  const requestUrl = buildPageSpeedUrl(strategy)
+async function requestPageSpeedAnalysis(strategy, analysisIndex) {
+  const requestUrl = buildPageSpeedUrl(strategy, analysisIndex)
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     const response = await fetchPageSpeedResponse(requestUrl, strategy, attempt)
     if (!response) continue
@@ -55,13 +59,20 @@ async function requestPageSpeedAnalysis(strategy) {
   throw new Error(`Invalid PageSpeed retry state: ${strategy}; expected a completed request`)
 }
 
-function buildPageSpeedUrl(strategy) {
+function buildPageSpeedUrl(strategy, analysisIndex) {
   const requestUrl = new URL(pageSpeedEndpoint)
-  requestUrl.searchParams.set('url', productionUrl)
+  requestUrl.searchParams.set('url', buildFreshAuditUrl(strategy, analysisIndex))
   requestUrl.searchParams.set('strategy', strategy)
   requestUrl.searchParams.set('key', apiKey)
   for (const gate of categoryGates) requestUrl.searchParams.append('category', gate.requestName)
   return requestUrl
+}
+
+function buildFreshAuditUrl(strategy, analysisIndex) {
+  const auditUrl = new URL(productionUrl)
+  const uniqueRun = `${Date.now()}-${strategy}-${analysisIndex}`
+  auditUrl.searchParams.set('pagespeed_run', uniqueRun)
+  return auditUrl.toString()
 }
 
 async function fetchPageSpeedResponse(requestUrl, strategy, attempt) {
