@@ -18,6 +18,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "preview": "vite preview",
+    "pagespeed:check": "node scripts/check-pagespeed.mjs",
     "test": "vitest run",
     "test:ct": "playwright test -c playwright-ct.config.ts",
     "test:e2e": "playwright test",
