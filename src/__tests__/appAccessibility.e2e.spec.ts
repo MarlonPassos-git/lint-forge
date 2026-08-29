@@ -66,6 +66,10 @@ test('cancels reset with Escape and restores focus to its trigger', async ({ pag
 })
 
 test('cancels reset from the form and restores focus to its trigger', async ({ page }) => {
+  const browserWarnings: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'warning') browserWarnings.push(message.text())
+  })
   await page.goto('/')
 
   const resetButton = page.getByRole('button', { name: 'Reset review' })
@@ -74,6 +78,7 @@ test('cancels reset from the form and restores focus to its trigger', async ({ p
 
   await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeHidden()
   await expect(resetButton).toBeFocused()
+  expect(browserWarnings).toEqual([])
 })
 
 async function collectKeyboardControlNames(page: Page, expectedNameCount: number) {
