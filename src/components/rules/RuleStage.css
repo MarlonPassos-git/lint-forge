@@ -194,9 +194,29 @@
 .decision-bar button {
   min-height: 44px;
   min-width: 0;
-  padding: 8px 6px;
+  padding: 8px 28px 8px 6px;
   position: relative;
   width: 100%;
+}
+
+.decision-shortcut-hint {
+  background: #fffdf7;
+  border: 1px solid #151515;
+  font:
+    800 9px / 1 "Cascadia Code",
+    Consolas,
+    monospace;
+  inset-inline-end: 5px;
+  opacity: 0;
+  padding: 3px;
+  pointer-events: none;
+  position: absolute;
+  top: 5px;
+  transition: opacity 140ms ease;
+}
+
+.decision-bar button:is(:hover, :focus-visible) .decision-shortcut-hint {
+  opacity: 1;
 }
 
 .decision-bar button::after {

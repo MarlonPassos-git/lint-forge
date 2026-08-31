@@ -25,6 +25,7 @@ import {
   loadReviewSnapshot,
   saveReviewSnapshot,
 } from '../storage/localReviewStore'
+import { useReviewShortcuts } from './useReviewShortcuts'
 
 const defaultInput = '{\n  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json"\n}\n'
 type ReviewSnapshotUpdater = (currentSnapshot: ReviewSnapshot) => ReviewSnapshot
@@ -48,6 +49,10 @@ export function useRuleReview() {
     setOutgoingDecision,
   )
   const dialogActions = useResetDialogActions(actions.resetReview, setIsResetDialogOpen)
+  useReviewShortcuts({
+    isBlocked: !state.activeRule || state.isResetDialogOpen || Boolean(state.outgoingDecision),
+    onChoose: actions.chooseRule,
+  })
 
   return {
     ...state,

@@ -1,5 +1,6 @@
 import { AlertTriangle, Info, ShieldCheck, X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { reviewShortcuts } from '../../domain/reviewShortcuts'
 import type { RuleChoice } from '../../domain/types'
 
 type RuleActionsProps = {
@@ -17,6 +18,7 @@ export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
           icon={<X size={20} />}
           label="Off"
           outgoingDecision={outgoingDecision}
+          shortcut={reviewShortcuts.off}
           onChoose={onChoose}
         />
         <DecisionButton
@@ -25,6 +27,7 @@ export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
           icon={<Info size={20} />}
           label="Info"
           outgoingDecision={outgoingDecision}
+          shortcut={reviewShortcuts.info}
           onChoose={onChoose}
         />
         <DecisionButton
@@ -33,6 +36,7 @@ export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
           icon={<AlertTriangle size={20} />}
           label="Warn"
           outgoingDecision={outgoingDecision}
+          shortcut={reviewShortcuts.warn}
           onChoose={onChoose}
         />
         <DecisionButton
@@ -41,6 +45,7 @@ export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
           icon={<ShieldCheck size={20} />}
           label="Error"
           outgoingDecision={outgoingDecision}
+          shortcut={reviewShortcuts.error}
           onChoose={onChoose}
         />
       </fieldset>
@@ -56,26 +61,34 @@ function getDecisionStatus(decision: RuleChoice['decision'] | null) {
   return `${decision} decision selected`
 }
 
-function DecisionButton(props: {
+type DecisionButtonProps = {
   className: string
   decision: RuleChoice['decision']
   icon: ReactNode
   label: string
   outgoingDecision: RuleChoice['decision'] | null
+  shortcut: (typeof reviewShortcuts)[RuleChoice['decision']]
   onChoose: (decision: RuleChoice['decision']) => void
-}) {
+}
+
+function DecisionButton(props: DecisionButtonProps) {
+  const labelId = `decision-label-${props.decision}`
+  const decisionClassName = getDecisionButtonClassName(
+    props.className,
+    props.outgoingDecision,
+    props.decision,
+  )
+  const buttonAttributes = {
+    'aria-keyshortcuts': props.shortcut.ariaKey,
+    'aria-labelledby': labelId,
+    className: decisionClassName,
+    disabled: Boolean(props.outgoingDecision),
+    onClick: () => props.onChoose(props.decision),
+  }
   return (
-    <button
-      type="button"
-      className={getDecisionButtonClassName(
-        props.className,
-        props.outgoingDecision,
-        props.decision,
-      )}
-      disabled={Boolean(props.outgoingDecision)}
-      onClick={() => props.onChoose(props.decision)}
-    >
-      {props.icon} {props.label}
+    <button type="button" {...buttonAttributes}>
+      {props.icon} <span id={labelId}>{props.label}</span>
+      <kbd className="decision-shortcut-hint">{props.shortcut.badge}</kbd>
     </button>
   )
 }
