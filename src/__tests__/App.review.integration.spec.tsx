@@ -50,6 +50,36 @@ describe('App review flow', () => {
     await waitFor(() => expect(getGeneratedConfig().value).toContain('"error"'))
   })
 
+  it.each([
+    ['H', 'Off', 'off'],
+    ['J', 'Info', 'info'],
+    ['K', 'Warn', 'warn'],
+    ['L', 'Error', 'error'],
+  ])('maps Shift+%s to the %s decision', async (key, label, decision) => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    fireEvent.keyDown(window, { key, shiftKey: true })
+
+    expect(screen.getByRole('button', { name: label })).toBeDisabled()
+    await waitFor(() => expect(getGeneratedConfig().value).toContain(`"${decision}"`))
+  })
+
+  it('ignores shortcuts during editing, composition, repeat, or extra modifiers', () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    fireEvent.keyDown(screen.getByLabelText('Base file'), { key: 'H', shiftKey: true })
+    fireEvent.keyDown(window, { key: 'J', repeat: true, shiftKey: true })
+    fireEvent.keyDown(window, { isComposing: true, key: 'K', shiftKey: true })
+    fireEvent.keyDown(window, { ctrlKey: true, key: 'L', shiftKey: true })
+
+    for (const label of ['Off', 'Info', 'Warn', 'Error']) {
+      expect(screen.getByRole('button', { name: label })).toBeEnabled()
+    }
+    expect(screen.getByText('0 decisions saved locally.')).toBeInTheDocument()
+  })
+
   it('moves active documentation after a decision is saved', async () => {
     vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)

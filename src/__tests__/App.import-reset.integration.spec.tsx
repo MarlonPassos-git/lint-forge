@@ -42,6 +42,16 @@ describe('App import and reset flow', () => {
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
   })
 
+  it('blocks review shortcuts while reset confirmation is open', async () => {
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reset review' }))
+    fireEvent.keyDown(window, { key: 'K', shiftKey: true })
+
+    expect(screen.getByRole('dialog', { name: 'Reset review?' })).toBeInTheDocument()
+    expect(screen.getByText('0 decisions saved locally.')).toBeInTheDocument()
+  })
+
   it('keeps review state when reset is canceled', async () => {
     render(<App />)
 

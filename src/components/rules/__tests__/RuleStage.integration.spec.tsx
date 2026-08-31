@@ -93,6 +93,27 @@ describe('RuleStage', () => {
     expect(screen.getByRole('button', { name: 'Warn' })).toHaveClass('is-selected-decision')
   })
 
+  it.each([
+    ['Off', 'Shift+H', '⇧H'],
+    ['Info', 'Shift+J', '⇧J'],
+    ['Warn', 'Shift+K', '⇧K'],
+    ['Error', 'Shift+L', '⇧L'],
+  ])('exposes the %s shortcut without changing its accessible name', (label, ariaKey, badge) => {
+    render(
+      <RuleStage
+        activeRule={visibleRules[0]}
+        hasSelectedCategory={true}
+        outgoingDecision={null}
+        rules={visibleRules}
+        onChoose={vi.fn()}
+      />,
+    )
+
+    const decisionButton = screen.getByRole('button', { name: label })
+    expect(decisionButton).toHaveAttribute('aria-keyshortcuts', ariaKey)
+    expect(decisionButton.querySelector('kbd')).toHaveTextContent(badge)
+  })
+
   it('shows the matching empty stage for filtered and finished decks', () => {
     const { rerender } = render(
       <RuleStage

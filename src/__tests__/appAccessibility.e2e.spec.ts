@@ -121,6 +121,13 @@ async function getFocusedControlName(page: Page) {
     ) {
       return focusedElement.labels?.[0]?.textContent?.trim() ?? ''
     }
+    const labelledBy = focusedElement.getAttribute('aria-labelledby')
+    if (labelledBy) {
+      return labelledBy
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent?.trim() ?? '')
+        .join(' ')
+    }
     return (
       focusedElement.getAttribute('aria-label') ??
       focusedElement.getAttribute('title') ??

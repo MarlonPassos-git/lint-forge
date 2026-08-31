@@ -14,6 +14,27 @@ test('reviews a rule and shows generated config output', async ({ page }) => {
   await expect(page.getByText('1 decisions saved locally.')).toBeVisible()
 })
 
+test('reveals a shortcut hint and reviews a rule from the keyboard', async ({ page }) => {
+  await page.goto('/')
+
+  const warnButton = page.getByRole('button', { name: 'Warn' })
+  const shortcutHint = warnButton.locator('kbd')
+  await expect(warnButton).toHaveAttribute('aria-keyshortcuts', 'Shift+K')
+  await expect(shortcutHint).toHaveCSS('opacity', '0')
+
+  await warnButton.hover()
+  await expect(shortcutHint).toHaveCSS('opacity', '1')
+  await page.mouse.move(0, 0)
+  await warnButton.focus()
+  await expect(shortcutHint).toHaveCSS('opacity', '1')
+
+  await page.keyboard.press('Shift+K')
+
+  await expect(page.getByRole('textbox', { name: 'Generated biome.json code' })).toHaveValue(
+    /"warn"/,
+  )
+})
+
 test('keeps category filters after reload', async ({ page }) => {
   await page.goto('/')
 
