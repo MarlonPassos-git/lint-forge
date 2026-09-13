@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
-import { reviewShortcuts } from '../domain/reviewShortcuts'
+import { reviewShortcuts, undoShortcut } from '../domain/reviewShortcuts'
 import type { RuleChoice, RuleDecision } from '../domain/types'
 
 type ReviewShortcutOptions = {
-  isBlocked: boolean
+  isDecisionBlocked: boolean
+  isUndoBlocked: boolean
   onChoose: (decision: RuleChoice['decision']) => void
+  onUndo: () => void
 }
 
 const shortcutDecisionByKey = new Map(
@@ -14,24 +16,33 @@ const shortcutDecisionByKey = new Map(
   ]),
 )
 
-/** Connects global review chords to the existing decision flow.
- * @example useReviewShortcuts({ isBlocked: false, onChoose: chooseRule })
+/** Connects global review chords to the existing review actions.
+ * @example useReviewShortcuts({ isDecisionBlocked: false, isUndoBlocked: true, onChoose, onUndo })
  */
-export function useReviewShortcuts({ isBlocked, onChoose }: ReviewShortcutOptions) {
+export function useReviewShortcuts({
+  isDecisionBlocked,
+  isUndoBlocked,
+  onChoose,
+  onUndo,
+}: ReviewShortcutOptions) {
   useEffect(() => {
-    const chooseRuleWithShortcut = (event: KeyboardEvent) => {
-      if (shouldIgnoreReviewShortcut(event, isBlocked)) return
+    const runReviewShortcut = (event: KeyboardEvent) => {
+      if (shouldIgnoreReviewShortcut(event)) return
+      if (event.shiftKey && event.key.toUpperCase() === undoShortcut.key) {
+        if (!isUndoBlocked) onUndo()
+        return
+      }
+      if (isDecisionBlocked) return
       const decision = getReviewShortcutDecision(event)
       if (decision) onChoose(decision)
     }
-    window.addEventListener('keydown', chooseRuleWithShortcut)
-    return () => window.removeEventListener('keydown', chooseRuleWithShortcut)
-  }, [isBlocked, onChoose])
+    window.addEventListener('keydown', runReviewShortcut)
+    return () => window.removeEventListener('keydown', runReviewShortcut)
+  }, [isDecisionBlocked, isUndoBlocked, onChoose, onUndo])
 }
 
-function shouldIgnoreReviewShortcut(event: KeyboardEvent, isBlocked: boolean) {
+function shouldIgnoreReviewShortcut(event: KeyboardEvent) {
   return (
-    isBlocked ||
     event.repeat ||
     event.isComposing ||
     event.altKey ||

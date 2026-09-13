@@ -115,7 +115,7 @@
   align-items: center;
   display: grid;
   gap: 10px;
-  grid-template-columns: auto auto minmax(130px, 180px) auto;
+  grid-template-columns: auto auto minmax(130px, 180px) auto auto;
 }
 
 .progress-block span {
@@ -139,6 +139,13 @@
   display: inline-block;
   font-variant-numeric: tabular-nums;
   min-width: 8ch;
+}
+
+.back-button {
+  min-height: 44px;
+  padding-inline-end: 36px;
+  position: relative;
+  white-space: nowrap;
 }
 
 .progress-track {

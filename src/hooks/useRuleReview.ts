@@ -5,14 +5,20 @@ import {
   formatBiomeConfig,
   getReviewableRules,
   parseBiomeConfig,
+  toRuleKey,
 } from '../domain/configuration'
 import {
   appendRuleChoice,
   getCompletedRuleCount,
   getProgressPercent,
   getVisibleRuleWindow,
+  removeLastRuleChoice,
 } from '../domain/reviewState'
-import { filterRulesByCategories, ruleCategories } from '../domain/ruleCategories'
+import {
+  filterRulesByCategories,
+  getRuleCategories,
+  ruleCategories,
+} from '../domain/ruleCategories'
 import type {
   BiomeConfig,
   BiomeRule,
@@ -50,8 +56,11 @@ export function useRuleReview() {
   )
   const dialogActions = useResetDialogActions(actions.resetReview, setIsResetDialogOpen)
   useReviewShortcuts({
-    isBlocked: !state.activeRule || state.isResetDialogOpen || Boolean(state.outgoingDecision),
+    isDecisionBlocked:
+      !state.activeRule || state.isResetDialogOpen || Boolean(state.outgoingDecision),
+    isUndoBlocked: !state.canUndo || state.isResetDialogOpen,
     onChoose: actions.chooseRule,
+    onUndo: actions.undoLastDecision,
   })
 
   return {
@@ -194,7 +203,25 @@ function usePrimaryReviewActions(dependencies: PrimaryReviewActionDependencies) 
     setImportText,
     setErrorText,
   )
-  return { chooseRule, resetReview, startReview }
+  const undoLastDecision = useCallback(() => {
+    if (state.outgoingDecision) return
+    storeSnapshot((snapshot) => {
+      const { choices, restoredChoice } = removeLastRuleChoice(snapshot.choices)
+      if (!restoredChoice) return snapshot
+      const restoredRule = biomeRules.find((rule) => toRuleKey(rule) === restoredChoice.ruleKey)
+      const selectedCategories = snapshot.filters?.selectedCategories ?? [...ruleCategories]
+      const restoredCategories = restoredRule ? getRuleCategories(restoredRule) : []
+      return {
+        ...snapshot,
+        choices,
+        currentIndex: Math.max(snapshot.currentIndex - 1, 0),
+        filters: {
+          selectedCategories: [...new Set([...selectedCategories, ...restoredCategories])],
+        },
+      }
+    })
+  }, [state.outgoingDecision, storeSnapshot])
+  return { chooseRule, resetReview, startReview, undoLastDecision }
 }
 
 function useSnapshotStore(setSnapshot: SetReviewSnapshot) {
@@ -313,6 +340,7 @@ function buildReviewState(
   const isOutputVisible = snapshot.panels?.outputVisible ?? true
   return {
     activeRule: derived.pendingRules[0],
+    canUndo: snapshot.choices.length > 0 && !derived.outgoingDecision,
     choices: snapshot.choices,
     completedRules: derived.completedRules,
     errorText,

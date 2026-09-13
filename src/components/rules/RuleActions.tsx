@@ -11,7 +11,12 @@ type RuleActionsProps = {
 export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
   return (
     <>
-      <fieldset className="decision-bar" aria-label="Rule decisions">
+      <fieldset
+        className="decision-bar"
+        id="rule-decisions"
+        aria-label="Rule decisions"
+        tabIndex={-1}
+      >
         <DecisionButton
           className="off-button"
           decision="off"
@@ -88,7 +93,7 @@ function DecisionButton(props: DecisionButtonProps) {
   return (
     <button type="button" {...buttonAttributes}>
       {props.icon} <span id={labelId}>{props.label}</span>
-      <kbd className="decision-shortcut-hint">{props.shortcut.badge}</kbd>
+      <kbd className="shortcut-hint">{props.shortcut.badge}</kbd>
     </button>
   )
 }
