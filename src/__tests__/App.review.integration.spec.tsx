@@ -91,6 +91,64 @@ describe('App review flow', () => {
     )
   })
 
+  it('undoes the latest decision and restores its rule and output', async () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"warn"'))
+    await userEvent.click(screen.getByRole('button', { name: 'Back, undo last decision' }))
+
+    expect(screen.getByTitle(`${biomeRules[0].name} documentation`)).toBeVisible()
+    expect(getGeneratedConfig().value).not.toContain('"warn"')
+    expect(screen.getByText('0 decisions saved locally.')).toBeInTheDocument()
+  })
+
+  it('maps Shift+B to Back without running inside the config editor', async () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    await waitFor(() => expect(getGeneratedConfig().value).toContain('"warn"'))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Back, undo last decision' })).toBeEnabled(),
+    )
+    fireEvent.keyDown(screen.getByLabelText('Base file'), { key: 'B', shiftKey: true })
+    expect(getGeneratedConfig().value).toContain('"warn"')
+
+    fireEvent.keyDown(window, { key: 'B', shiftKey: true })
+
+    expect(screen.getByTitle(`${biomeRules[0].name} documentation`)).toBeVisible()
+    expect(getGeneratedConfig().value).not.toContain('"warn"')
+  })
+
+  it('disables Back while a decision is pending', async () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
+
+    expect(screen.getByRole('button', { name: 'Back, undo last decision' })).toBeDisabled()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Back, undo last decision' })).toBeEnabled(),
+    )
+  })
+
+  it('blocks the Back shortcut while another decision is pending', async () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Back, undo last decision' })).toBeEnabled(),
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Info' }))
+    fireEvent.keyDown(window, { key: 'B', shiftKey: true })
+
+    expect(getGeneratedConfig().value).toContain('"warn"')
+    await waitFor(() => expect(screen.getByText('2 decisions saved locally.')).toBeInTheDocument())
+  })
+
   it('preserves a filter change while a decision animation finishes', () => {
     vi.useFakeTimers()
     vi.stubGlobal('AudioContext', QuietAudioContext)

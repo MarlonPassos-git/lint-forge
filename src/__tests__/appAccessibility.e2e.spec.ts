@@ -11,6 +11,24 @@ test('keeps only the active docs iframe in the keyboard tab order', async ({ pag
   expect(focusedNames).toContain('noAccessKey documentation')
 })
 
+test('offers a focused skip link before active documentation', async ({ page }) => {
+  await page.goto('/')
+
+  const startButton = page.getByRole('button', { name: 'Start from this config' })
+  const skipLink = page.getByRole('link', { name: 'Skip documentation' })
+  await expect(skipLink).toHaveCSS('clip-path', 'inset(50%)')
+  await startButton.focus()
+  await page.keyboard.press('Tab')
+  await expect(skipLink).toBeFocused()
+  await expect(skipLink).toHaveCSS('clip-path', 'none')
+  await page.keyboard.press('Tab')
+  await expect(page.locator('iframe.docs-frame').first()).toBeFocused()
+
+  await skipLink.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('group', { name: 'Rule decisions' })).toBeFocused()
+})
+
 test('exposes only the active rule card and documentation frame', async ({ page }) => {
   await page.goto('/')
 

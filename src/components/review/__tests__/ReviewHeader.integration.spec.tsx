@@ -8,6 +8,7 @@ describe('ReviewHeader', () => {
     const onResetRequest = vi.fn()
     render(
       <ReviewHeader
+        canUndo={true}
         completedRules={2}
         hasSelectedCategory={true}
         progress={25}
@@ -15,6 +16,7 @@ describe('ReviewHeader', () => {
         totalRules={8}
         onCategoryToggle={vi.fn()}
         onResetRequest={onResetRequest}
+        onUndo={vi.fn()}
       />,
     )
 
@@ -40,6 +42,7 @@ describe('ReviewHeader', () => {
     const onCategoryToggle = vi.fn()
     render(
       <ReviewHeader
+        canUndo={false}
         completedRules={0}
         hasSelectedCategory={true}
         progress={0}
@@ -47,6 +50,7 @@ describe('ReviewHeader', () => {
         totalRules={10}
         onCategoryToggle={onCategoryToggle}
         onResetRequest={vi.fn()}
+        onUndo={vi.fn()}
       />,
     )
 
@@ -58,5 +62,44 @@ describe('ReviewHeader', () => {
     )
     expect(screen.getAllByRole('checkbox')).toHaveLength(6)
     expect(onCategoryToggle).toHaveBeenCalledWith('JavaScript')
+  })
+
+  it('exposes Back globally and disables it when undo is unavailable', async () => {
+    const onUndo = vi.fn()
+    const { rerender } = render(
+      <ReviewHeader
+        canUndo={false}
+        completedRules={0}
+        hasSelectedCategory={false}
+        progress={0}
+        selectedCategories={[]}
+        totalRules={0}
+        onCategoryToggle={vi.fn()}
+        onResetRequest={vi.fn()}
+        onUndo={onUndo}
+      />,
+    )
+
+    const backButton = screen.getByRole('button', { name: 'Back, undo last decision' })
+    expect(backButton).toBeDisabled()
+    expect(backButton).toHaveAttribute('aria-keyshortcuts', 'Shift+B')
+    expect(backButton.querySelector('kbd')).toHaveTextContent('⇧B')
+
+    rerender(
+      <ReviewHeader
+        canUndo={true}
+        completedRules={1}
+        hasSelectedCategory={true}
+        progress={100}
+        selectedCategories={['CSS']}
+        totalRules={1}
+        onCategoryToggle={vi.fn()}
+        onResetRequest={vi.fn()}
+        onUndo={onUndo}
+      />,
+    )
+    await userEvent.click(backButton)
+
+    expect(onUndo).toHaveBeenCalledTimes(1)
   })
 })

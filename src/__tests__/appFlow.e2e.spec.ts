@@ -33,6 +33,14 @@ test('reveals a shortcut hint and reviews a rule from the keyboard', async ({ pa
   await expect(page.getByRole('textbox', { name: 'Generated biome.json code' })).toHaveValue(
     /"warn"/,
   )
+
+  const backButton = page.getByRole('button', { name: 'Back, undo last decision' })
+  await expect(backButton).toHaveAttribute('aria-keyshortcuts', 'Shift+B')
+  await expect(backButton).toBeEnabled()
+  await page.keyboard.press('Shift+B')
+  await expect(page.getByRole('textbox', { name: 'Generated biome.json code' })).not.toHaveValue(
+    /"warn"/,
+  )
 })
 
 test('keeps category filters after reload', async ({ page }) => {
