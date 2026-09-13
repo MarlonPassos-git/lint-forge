@@ -26,3 +26,9 @@ export function appendRuleChoice(
 ) {
   return [...choices, { ruleKey: toRuleKey(rule), decision }]
 }
+
+export function removeLastRuleChoice(choices: RuleChoice[]) {
+  const restoredChoice = choices.at(-1)
+  if (!restoredChoice) return { choices, restoredChoice }
+  return { choices: choices.slice(0, -1), restoredChoice }
+}

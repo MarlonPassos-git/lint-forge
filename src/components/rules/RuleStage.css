@@ -109,6 +109,49 @@
   width: 100%;
 }
 
+.skip-documentation {
+  background: #fffdf7;
+  border: 2px solid #151515;
+  box-shadow: 4px 4px 0 #151515;
+  color: #151515;
+  font:
+    800 14px / 1.1 "Trebuchet MS",
+    sans-serif;
+  left: 16px;
+  padding: 10px 12px;
+  position: absolute;
+  top: 70px;
+  z-index: 7;
+}
+
+.skip-documentation:not(:focus-visible) {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.skip-documentation:focus-visible {
+  outline: 3px solid #d33b53;
+  outline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  .skip-documentation {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+    color: CanvasText;
+  }
+
+  .skip-documentation:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 .rule-frame.is-queued-next .docs-frame,
 .rule-frame.is-queued-after .docs-frame {
   visibility: hidden;
@@ -197,26 +240,6 @@
   padding: 8px 28px 8px 6px;
   position: relative;
   width: 100%;
-}
-
-.decision-shortcut-hint {
-  background: #fffdf7;
-  border: 1px solid #151515;
-  font:
-    800 9px / 1 "Cascadia Code",
-    Consolas,
-    monospace;
-  inset-inline-end: 5px;
-  opacity: 0;
-  padding: 3px;
-  pointer-events: none;
-  position: absolute;
-  top: 5px;
-  transition: opacity 140ms ease;
-}
-
-.decision-bar button:is(:hover, :focus-visible) .decision-shortcut-hint {
-  opacity: 1;
 }
 
 .decision-bar button::after {

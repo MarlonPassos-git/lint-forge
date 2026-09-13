@@ -36,6 +36,16 @@ export const RuleFrame = memo(function RuleFrame({
         </div>
         <p>{rule.summary}</p>
       </div>
+      {isActive ? (
+        // biome-ignore lint/a11y/useValidAnchor: This enhanced anchor still performs in-page navigation.
+        <a
+          className="skip-documentation"
+          href="#rule-decisions"
+          onClick={() => document.getElementById('rule-decisions')?.focus()}
+        >
+          Skip documentation
+        </a>
+      ) : null}
       <iframe
         className="docs-frame"
         aria-hidden={isHidden || undefined}

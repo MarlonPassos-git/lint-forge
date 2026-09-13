@@ -10,6 +10,7 @@ function App() {
   return (
     <main className="app-shell">
       <ReviewHeader
+        canUndo={review.canUndo}
         completedRules={review.completedRules}
         hasSelectedCategory={review.hasSelectedCategory}
         progress={review.progress}
@@ -17,6 +18,7 @@ function App() {
         totalRules={review.filteredRules.length}
         onCategoryToggle={review.toggleCategory}
         onResetRequest={review.openResetDialog}
+        onUndo={review.undoLastDecision}
       />
       <ReviewWorkspace controller={review} />
       {review.isResetDialogOpen ? (

@@ -2,6 +2,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
+import { biomeRules } from '../domain/biomeRules'
+import { getRuleCategories } from '../domain/ruleCategories'
+import { QuietAudioContext } from '../test/audioFakes'
 
 describe('App category filters', () => {
   beforeEach(() => {
@@ -46,5 +49,31 @@ describe('App category filters', () => {
 
     expect(screen.getByRole('checkbox', { name: 'CSS' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'JavaScript' })).not.toBeChecked()
+  })
+
+  it('reactivates the category of a rule restored by Back', async () => {
+    vi.stubGlobal('AudioContext', QuietAudioContext)
+    const restoredRule = biomeRules[0]
+    const [restoredCategory] = getRuleCategories(restoredRule)
+    const view = render(<App />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    await screen.findByText('1 decisions saved locally.')
+    await userEvent.click(screen.getByRole('checkbox', { name: restoredCategory }))
+    expect(screen.getByRole('checkbox', { name: restoredCategory })).not.toBeChecked()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Back, undo last decision' }))
+
+    expect(screen.getByRole('checkbox', { name: restoredCategory })).toBeChecked()
+    expect(screen.getByTitle(`${restoredRule.name} documentation`)).toBeVisible()
+    expect(JSON.parse(window.localStorage.getItem('biome-rule-swipe:v1') ?? '{}')).toMatchObject({
+      choices: [],
+      currentIndex: 0,
+    })
+
+    view.unmount()
+    render(<App />)
+    expect(screen.getByRole('checkbox', { name: restoredCategory })).toBeChecked()
+    expect(screen.getByTitle(`${restoredRule.name} documentation`)).toBeVisible()
   })
 })

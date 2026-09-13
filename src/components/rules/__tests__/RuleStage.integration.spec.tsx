@@ -57,10 +57,27 @@ describe('RuleStage', () => {
     expect(articles[2]).toHaveAttribute('inert')
     expect(articles[2]).toHaveAttribute('aria-hidden', 'true')
     expect(screen.getByRole('group', { name: 'Rule decisions' })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Skip documentation' })).toHaveLength(1)
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
     await waitFor(() => expect(activeFrame).toHaveAttribute('src', visibleRules[0].url))
     expect(nextFrame).toHaveAttribute('src', visibleRules[1].url)
     expect(laterFrame).toHaveAttribute('src', visibleRules[2].url)
+  })
+
+  it('skips active documentation and focuses the decision group', async () => {
+    render(
+      <RuleStage
+        activeRule={visibleRules[0]}
+        hasSelectedCategory={true}
+        outgoingDecision={null}
+        rules={visibleRules}
+        onChoose={vi.fn()}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('link', { name: 'Skip documentation' }))
+
+    expect(screen.getByRole('group', { name: 'Rule decisions' })).toHaveFocus()
   })
 
   it('reports the chosen decision and disables actions during pending choice', async () => {
@@ -111,7 +128,7 @@ describe('RuleStage', () => {
 
     const decisionButton = screen.getByRole('button', { name: label })
     expect(decisionButton).toHaveAttribute('aria-keyshortcuts', ariaKey)
-    expect(decisionButton.querySelector('kbd')).toHaveTextContent(badge)
+    expect(decisionButton.querySelector('.shortcut-hint')).toHaveTextContent(badge)
   })
 
   it('shows the matching empty stage for filtered and finished decks', () => {

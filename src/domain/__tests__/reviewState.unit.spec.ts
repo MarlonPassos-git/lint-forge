@@ -4,6 +4,7 @@ import {
   getCompletedRuleCount,
   getProgressPercent,
   getVisibleRuleWindow,
+  removeLastRuleChoice,
 } from '../reviewState'
 import type { BiomeRule } from '../types'
 
@@ -50,5 +51,23 @@ describe('appendRuleChoice', () => {
     expect(appendRuleChoice([], rules[0], 'error')).toEqual([
       { ruleKey: 'style/rule0', decision: 'error' },
     ])
+  })
+})
+
+describe('removeLastRuleChoice', () => {
+  it('removes and returns the most recent choice', () => {
+    const choices = [
+      { ruleKey: 'style/rule0', decision: 'warn' as const },
+      { ruleKey: 'style/rule1', decision: 'error' as const },
+    ]
+
+    expect(removeLastRuleChoice(choices)).toEqual({
+      choices: [{ ruleKey: 'style/rule0', decision: 'warn' }],
+      restoredChoice: { ruleKey: 'style/rule1', decision: 'error' },
+    })
+  })
+
+  it('leaves an empty history unchanged', () => {
+    expect(removeLastRuleChoice([])).toEqual({ choices: [], restoredChoice: undefined })
   })
 })

@@ -1,9 +1,11 @@
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Undo2 } from 'lucide-react'
 import { memo } from 'react'
+import { undoShortcut } from '../../domain/reviewShortcuts'
 import type { RuleCategory } from '../../domain/types'
 import { CategoryFilter } from './CategoryFilter'
 
 type ReviewHeaderProps = {
+  canUndo: boolean
   completedRules: number
   hasSelectedCategory: boolean
   progress: number
@@ -11,6 +13,7 @@ type ReviewHeaderProps = {
   totalRules: number
   onCategoryToggle: (category: RuleCategory) => void
   onResetRequest: (trigger: HTMLButtonElement) => void
+  onUndo: () => void
 }
 
 export const ReviewHeader = memo(function ReviewHeader(props: ReviewHeaderProps) {
@@ -42,6 +45,18 @@ function ProgressActions(props: ReviewHeaderProps) {
         {props.completedRules}/{props.totalRules}
       </small>
       <ProgressTrack hasSelectedCategory={props.hasSelectedCategory} progress={props.progress} />
+      <button
+        type="button"
+        aria-label="Back, undo last decision"
+        aria-keyshortcuts={undoShortcut.ariaKey}
+        className="secondary-button back-button"
+        disabled={!props.canUndo}
+        onClick={props.onUndo}
+      >
+        <Undo2 aria-hidden="true" size={18} />
+        Back
+        <kbd className="shortcut-hint">{undoShortcut.badge}</kbd>
+      </button>
       <ResetButton onResetRequest={props.onResetRequest} />
     </div>
   )
@@ -80,11 +95,13 @@ function ResetButton({ onResetRequest }: { onResetRequest: ReviewHeaderProps['on
 function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHeaderProps) {
   return (
     previous.completedRules === next.completedRules &&
+    previous.canUndo === next.canUndo &&
     previous.hasSelectedCategory === next.hasSelectedCategory &&
     previous.progress === next.progress &&
     previous.selectedCategories === next.selectedCategories &&
     previous.totalRules === next.totalRules &&
     previous.onCategoryToggle === next.onCategoryToggle &&
-    previous.onResetRequest === next.onResetRequest
+    previous.onResetRequest === next.onResetRequest &&
+    previous.onUndo === next.onUndo
   )
 }

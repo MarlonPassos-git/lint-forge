@@ -12,3 +12,9 @@ export const reviewShortcuts: Record<RuleDecision, ReviewShortcut> = {
   warn: { ariaKey: 'Shift+K', badge: '⇧K', key: 'K' },
   error: { ariaKey: 'Shift+L', badge: '⇧L', key: 'L' },
 }
+
+export const undoShortcut: ReviewShortcut = {
+  ariaKey: 'Shift+B',
+  badge: '⇧B',
+  key: 'B',
+}
