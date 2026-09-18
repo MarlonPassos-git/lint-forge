@@ -1,11 +1,11 @@
 import { AlertTriangle, ShieldCheck } from 'lucide-react'
 
-export function NoCategoriesStage() {
+export function NoFiltersStage() {
   return (
     <section className="finished-stage">
       <AlertTriangle size={44} aria-hidden="true" />
-      <h2>No categories selected.</h2>
-      <p>Select at least one category to continue reviewing rules.</p>
+      <h2>No filters selected.</h2>
+      <p>Select at least one language or tool in the side panel to continue reviewing rules.</p>
     </section>
   )
 }

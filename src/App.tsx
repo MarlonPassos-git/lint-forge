@@ -2,6 +2,7 @@ import './App.css'
 import { ReviewWorkspace } from './components/layout/ReviewWorkspace'
 import { ResetDialog } from './components/reset/ResetDialog'
 import { ReviewHeader } from './components/review/ReviewHeader'
+import { ReviewSidebar } from './components/sidebar/ReviewSidebar'
 import { useRuleReview } from './hooks/useRuleReview'
 
 function App() {
@@ -12,15 +13,26 @@ function App() {
       <ReviewHeader
         canUndo={review.canUndo}
         completedRules={review.completedRules}
-        hasSelectedCategory={review.hasSelectedCategory}
+        hasSelectedFilter={review.hasSelectedFilter}
         progress={review.progress}
-        selectedCategories={review.selectedCategories}
         totalRules={review.filteredRules.length}
-        onCategoryToggle={review.toggleCategory}
         onResetRequest={review.openResetDialog}
         onUndo={review.undoLastDecision}
       />
-      <ReviewWorkspace controller={review} />
+      <div className="workbench">
+        <ReviewSidebar
+          audioEnabled={review.audio.enabled}
+          audioPack={review.audio.pack}
+          selectedCategories={review.selectedCategories}
+          selectedDomains={review.selectedDomains}
+          onAudioPackChange={review.setAudioPack}
+          onAudioToggle={review.toggleAudioEnabled}
+          onFilterGroupSelection={review.setFilterGroupSelection}
+          onFilterToggle={review.toggleFilter}
+          onSoundPreview={review.previewDecisionSound}
+        />
+        <ReviewWorkspace controller={review} />
+      </div>
       {review.isResetDialogOpen ? (
         <ResetDialog onCancel={review.closeResetDialog} onConfirm={review.resetReview} />
       ) : null}

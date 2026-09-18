@@ -17,6 +17,7 @@ const sampleRules: BiomeRule[] = [
     name: 'noUnusedVariables',
     title: 'No Unused Variables',
     summary: 'Disallow unused variables.',
+    domains: [],
     url: 'https://biomejs.dev/linter/rules/no-unused-variables',
   },
   {
@@ -24,6 +25,7 @@ const sampleRules: BiomeRule[] = [
     name: 'useConst',
     title: 'Use Const',
     summary: 'Require const declarations.',
+    domains: [],
     url: 'https://biomejs.dev/linter/rules/use-const',
   },
 ]

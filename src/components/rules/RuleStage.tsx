@@ -1,19 +1,19 @@
 import { memo } from 'react'
 import type { BiomeRule, RuleChoice } from '../../domain/types'
-import { FinishedStage, NoCategoriesStage } from './EmptyStages'
+import { FinishedStage, NoFiltersStage } from './EmptyStages'
 import { RuleActions } from './RuleActions'
 import { RuleFrame } from './RuleFrame'
 
 type RuleStageProps = {
   activeRule?: BiomeRule
-  hasSelectedCategory: boolean
+  hasSelectedFilter: boolean
   outgoingDecision: RuleChoice['decision'] | null
   rules: BiomeRule[]
   onChoose: (decision: RuleChoice['decision']) => void
 }
 
 export const RuleStage = memo(function RuleStage(props: RuleStageProps) {
-  if (!props.hasSelectedCategory) return <NoCategoriesStage />
+  if (!props.hasSelectedFilter) return <NoFiltersStage />
   if (!props.activeRule) return <FinishedStage />
 
   return (
@@ -37,7 +37,7 @@ export const RuleStage = memo(function RuleStage(props: RuleStageProps) {
 function areRuleStagePropsEqual(previous: RuleStageProps, next: RuleStageProps) {
   return (
     previous.activeRule === next.activeRule &&
-    previous.hasSelectedCategory === next.hasSelectedCategory &&
+    previous.hasSelectedFilter === next.hasSelectedFilter &&
     previous.outgoingDecision === next.outgoingDecision &&
     previous.rules === next.rules &&
     previous.onChoose === next.onChoose

@@ -1,4 +1,6 @@
+import { isDecisionSoundPack } from '../audio/decisionSoundPlayer'
 import { ruleCategories } from '../domain/ruleCategories'
+import { isRuleDomain } from '../domain/ruleFilters'
 import type { ReviewSnapshot, RuleCategory } from '../domain/types'
 
 const STORE_KEY = 'biome-rule-swipe:v1'
@@ -59,6 +61,7 @@ function assertStoredReviewSnapshot(value: unknown): asserts value is StoredRevi
   assertStoredChoices(value.choices)
   assertOptionalPanels(value.panels)
   assertOptionalFilters(value.filters)
+  assertOptionalAudio(value.audio)
 }
 
 function assertStoredChoices(values: unknown[]): asserts values is StoredRuleChoice[] {
@@ -101,6 +104,30 @@ function assertOptionalFilters(value: unknown): void {
     if (!isRuleCategory(category)) {
       throw invalidSnapshot('filters.selectedCategories', category, 'known rule category')
     }
+  }
+  assertOptionalDomains(value.selectedDomains)
+}
+
+function assertOptionalDomains(value: unknown): void {
+  if (value === undefined) return
+  if (!Array.isArray(value)) {
+    throw invalidSnapshot('filters.selectedDomains', value, 'array of rule domains')
+  }
+  for (const domain of value) {
+    if (!isRuleDomain(domain)) {
+      throw invalidSnapshot('filters.selectedDomains', domain, 'known rule domain')
+    }
+  }
+}
+
+function assertOptionalAudio(value: unknown): void {
+  if (value === undefined) return
+  if (!isRecord(value)) throw invalidSnapshot('audio', value, 'object')
+  if (typeof value.enabled !== 'boolean') {
+    throw invalidSnapshot('audio.enabled', value.enabled, 'boolean')
+  }
+  if (!isDecisionSoundPack(value.pack)) {
+    throw invalidSnapshot('audio.pack', value.pack, 'known decision sound pack')
   }
 }
 

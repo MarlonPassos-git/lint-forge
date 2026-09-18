@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test'
 test('keeps only the active docs iframe in the keyboard tab order', async ({ page }) => {
   await page.goto('/')
 
-  const focusedNames = await collectKeyboardControlNames(page, 15)
+  const focusedNames = await collectKeyboardControlNames(page, 45)
 
   expect(focusedNames).toContain('Reset review')
   expect(focusedNames).toContain('Base file')

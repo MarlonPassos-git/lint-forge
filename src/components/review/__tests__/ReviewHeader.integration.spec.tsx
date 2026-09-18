@@ -10,11 +10,9 @@ describe('ReviewHeader', () => {
       <ReviewHeader
         canUndo={true}
         completedRules={2}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         progress={25}
-        selectedCategories={['CSS']}
         totalRules={8}
-        onCategoryToggle={vi.fn()}
         onResetRequest={onResetRequest}
         onUndo={vi.fn()}
       />,
@@ -38,30 +36,20 @@ describe('ReviewHeader', () => {
     expect(onResetRequest).toHaveBeenCalledTimes(1)
   })
 
-  it('names category controls and reports category changes', async () => {
-    const onCategoryToggle = vi.fn()
+  it('reports when no review filter is selected', () => {
     render(
       <ReviewHeader
         canUndo={false}
         completedRules={0}
-        hasSelectedCategory={true}
+        hasSelectedFilter={false}
         progress={0}
-        selectedCategories={['JavaScript']}
-        totalRules={10}
-        onCategoryToggle={onCategoryToggle}
+        totalRules={0}
         onResetRequest={vi.fn()}
         onUndo={vi.fn()}
       />,
     )
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
-
-    expect(screen.getByRole('checkbox', { name: 'HTML/ARIA' })).toHaveAttribute(
-      'id',
-      'category-html-aria',
-    )
-    expect(screen.getAllByRole('checkbox')).toHaveLength(6)
-    expect(onCategoryToggle).toHaveBeenCalledWith('JavaScript')
+    expect(screen.getByText('No filters')).toBeInTheDocument()
   })
 
   it('exposes Back globally and disables it when undo is unavailable', async () => {
@@ -70,11 +58,9 @@ describe('ReviewHeader', () => {
       <ReviewHeader
         canUndo={false}
         completedRules={0}
-        hasSelectedCategory={false}
+        hasSelectedFilter={false}
         progress={0}
-        selectedCategories={[]}
         totalRules={0}
-        onCategoryToggle={vi.fn()}
         onResetRequest={vi.fn()}
         onUndo={onUndo}
       />,
@@ -89,11 +75,9 @@ describe('ReviewHeader', () => {
       <ReviewHeader
         canUndo={true}
         completedRules={1}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         progress={100}
-        selectedCategories={['CSS']}
         totalRules={1}
-        onCategoryToggle={vi.fn()}
         onResetRequest={vi.fn()}
         onUndo={onUndo}
       />,

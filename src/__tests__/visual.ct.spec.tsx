@@ -2,13 +2,14 @@ import { expect, test } from '@playwright/experimental-ct-react'
 import App from '../App'
 import { ReviewWorkspace } from '../components/layout/ReviewWorkspace'
 import { ResetDialog } from '../components/reset/ResetDialog'
-import { FinishedStage, NoCategoriesStage } from '../components/rules/EmptyStages'
+import { FinishedStage, NoFiltersStage } from '../components/rules/EmptyStages'
 import type { BiomeRule } from '../domain/types'
 
 const stableRule: BiomeRule = {
   group: 'style',
   name: 'useConst',
   summary: 'Require const declarations.',
+  domains: [],
   title: 'Use Const',
   url: 'about:blank',
 }
@@ -30,7 +31,7 @@ test('matches review workspace visual baseline', async ({ mount }) => {
         choices: [{ decision: 'warn', ruleKey: 'style/useConst' }],
         chooseRule: () => undefined,
         errorText: '',
-        hasSelectedCategory: true,
+        hasSelectedFilter: true,
         importText: '{\n  "linter": {\n    "rules": {}\n  }\n}',
         isInputVisible: true,
         isOutputVisible: true,
@@ -64,7 +65,7 @@ test('matches reset confirmation visual baseline', async ({ mount }) => {
 test('matches empty review states visual baseline', async ({ mount }) => {
   const component = await mount(
     <div className="visual-empty-states">
-      <NoCategoriesStage />
+      <NoFiltersStage />
       <FinishedStage />
     </div>,
   )

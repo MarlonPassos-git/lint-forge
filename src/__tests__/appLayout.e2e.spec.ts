@@ -45,7 +45,7 @@ test('keeps mobile review layout free of horizontal overflow', async ({ page }) 
   await page.goto('/')
 
   await expect(page.getByRole('heading', { name: 'Lint Forge' })).toBeVisible()
-  const errorButton = page.getByRole('button', { name: 'Error' })
+  const errorButton = page.getByRole('button', { name: 'Error', exact: true })
   await errorButton.scrollIntoViewIfNeeded()
   await expectControlInsideViewport(errorButton, 320, 900)
   expect(await getHorizontalOverflow(page)).toBe(0)
@@ -56,7 +56,11 @@ test('keeps every desktop decision control inside the viewport', async ({ page }
   await page.goto('/')
 
   for (const decision of ['Off', 'Info', 'Warn', 'Error']) {
-    await expectControlInsideViewport(page.getByRole('button', { name: decision }), 1440, 900)
+    await expectControlInsideViewport(
+      page.getByRole('button', { name: decision, exact: true }),
+      1440,
+      900,
+    )
   }
 })
 

@@ -154,6 +154,36 @@ components:
     typography: "{typography.code-md}"
     rounded: "{rounded.none}"
     padding: 14px
+  sidebar:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.primary}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.none}"
+    padding: 14px
+  sound-preview-off:
+    backgroundColor: "{colors.off}"
+    textColor: "{colors.primary}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.none}"
+    padding: 4px
+  sound-preview-info:
+    backgroundColor: "{colors.gumroad-purple}"
+    textColor: "{colors.primary}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.none}"
+    padding: 4px
+  sound-preview-warn:
+    backgroundColor: "{colors.warning}"
+    textColor: "{colors.primary}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.none}"
+    padding: 4px
+  sound-preview-error:
+    backgroundColor: "{colors.danger}"
+    textColor: "{colors.primary}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.none}"
+    padding: 4px
   gumroad-accent-sample:
     backgroundColor: "{colors.gumroad-pink}"
     textColor: "{colors.primary}"
@@ -253,15 +283,16 @@ Gumroad's real app uses `ABC Favorit`, falling back through Avenir, Montserrat, 
 
 ## Layout
 
-Desktop is the primary environment. Preserve the three-zone workbench:
+Desktop is the primary environment. Preserve the four-zone workbench:
 
-- Left panel: imported base config.
+- Left setup panel: language and tool filters plus sound settings, pinned beside the workspace.
+- Base file panel: imported Biome config.
 - Center stage: rule documentation card and decision bar.
 - Right panel: generated `biome.json`.
 
 Use a max width near `2200px`, tight outer padding, and `18px` workspace gaps. Panels should feel like fixed tools on a desk, not floating marketing cards. The center rule card should dominate the viewport and preserve iframe height.
 
-On narrower screens, collapse to a single column while preserving control order. Hidden side panels become tall reveal tabs on desktop and horizontal reveal buttons on smaller screens.
+On narrower screens, collapse to a single column while preserving control order, with the setup panel stacked above the workspace. Hidden side panels become tall reveal tabs on desktop and horizontal reveal buttons on smaller screens.
 
 ## Elevation & Depth
 
@@ -305,7 +336,11 @@ Gumroad's pinned `components/ui` kit uses a consistent recipe: `border border-bo
 
 **Empty and code states:** Gumroad `Placeholder` uses dashed bordered blocks with centered copy; `CodeSnippet` uses bordered figures with caption and pre/code. Match that for empty filters and generated config snippets, while keeping generated `biome.json` as a high-contrast code surface.
 
-**Filter chips:** Small, bordered, square labels with native checkboxes. They should read as controls, not tags or pills.
+**Filter chips:** Small, bordered, square labels with native checkboxes. They should read as controls, not tags or pills. They live in the left setup panel and wrap in a compact grid; group all/none actions stay quiet text links.
+
+**Side panel:** Warm neutral panel sharing the base panel recipe: black border, `14px` padding, vertical sections separated by rules. Sections group language filters, tool filters, and sound settings. Use the serif heading only for the panel title; section headings are heavy uppercase labels.
+
+**Sound previews:** A four-column row of small square buttons reserved for Off, Info, Warn, and Error. They mirror decision colors exactly so the preview reads as a decision control, and they disable when decision sounds are off.
 
 **Text areas and code output:** Monospace, high contrast, square corners. Imported config uses paper surface; generated output uses ink surface with warm code text.
 

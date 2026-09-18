@@ -23,7 +23,10 @@ export function ResetDialog({ onCancel, onConfirm }: ResetDialogProps) {
       onCancel={onCancel}
     >
       <h2 id="reset-title">Reset review?</h2>
-      <p>This clears imported config, decisions, progress, filters, and hidden panel state.</p>
+      <p>
+        This clears imported config, decisions, progress, filters, sound settings, and hidden panel
+        state.
+      </p>
       <form method="dialog" className="dialog-actions">
         <button type="button" value="cancel" className="secondary-button" onClick={onCancel}>
           Cancel

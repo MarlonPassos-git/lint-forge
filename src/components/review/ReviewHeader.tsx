@@ -1,17 +1,13 @@
 import { RotateCcw, Undo2 } from 'lucide-react'
 import { memo } from 'react'
 import { undoShortcut } from '../../domain/reviewShortcuts'
-import type { RuleCategory } from '../../domain/types'
-import { CategoryFilter } from './CategoryFilter'
 
 type ReviewHeaderProps = {
   canUndo: boolean
   completedRules: number
-  hasSelectedCategory: boolean
+  hasSelectedFilter: boolean
   progress: number
-  selectedCategories: RuleCategory[]
   totalRules: number
-  onCategoryToggle: (category: RuleCategory) => void
   onResetRequest: (trigger: HTMLButtonElement) => void
   onUndo: () => void
 }
@@ -26,10 +22,6 @@ export const ReviewHeader = memo(function ReviewHeader(props: ReviewHeaderProps)
           For Biome configs. Independent project, not an official Biome tool.
         </p>
       </div>
-      <CategoryFilter
-        selectedCategories={props.selectedCategories}
-        onCategoryToggle={props.onCategoryToggle}
-      />
       <ProgressActions {...props} />
     </header>
   )
@@ -39,12 +31,12 @@ function ProgressActions(props: ReviewHeaderProps) {
   return (
     <div className="progress-block">
       <span className="progress-value">
-        {props.hasSelectedCategory ? `${props.progress}%` : 'No categories'}
+        {props.hasSelectedFilter ? `${props.progress}%` : 'No filters'}
       </span>
       <small className="progress-count">
         {props.completedRules}/{props.totalRules}
       </small>
-      <ProgressTrack hasSelectedCategory={props.hasSelectedCategory} progress={props.progress} />
+      <ProgressTrack hasSelectedFilter={props.hasSelectedFilter} progress={props.progress} />
       <button
         type="button"
         aria-label="Back, undo last decision"
@@ -63,10 +55,10 @@ function ProgressActions(props: ReviewHeaderProps) {
 }
 
 function ProgressTrack({
-  hasSelectedCategory,
+  hasSelectedFilter,
   progress,
 }: {
-  hasSelectedCategory: boolean
+  hasSelectedFilter: boolean
   progress: number
 }) {
   return (
@@ -74,7 +66,7 @@ function ProgressTrack({
       aria-label="Review progress"
       className="progress-track"
       max={100}
-      value={hasSelectedCategory ? progress : 0}
+      value={hasSelectedFilter ? progress : 0}
     />
   )
 }
@@ -96,11 +88,9 @@ function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHead
   return (
     previous.completedRules === next.completedRules &&
     previous.canUndo === next.canUndo &&
-    previous.hasSelectedCategory === next.hasSelectedCategory &&
+    previous.hasSelectedFilter === next.hasSelectedFilter &&
     previous.progress === next.progress &&
-    previous.selectedCategories === next.selectedCategories &&
     previous.totalRules === next.totalRules &&
-    previous.onCategoryToggle === next.onCategoryToggle &&
     previous.onResetRequest === next.onResetRequest &&
     previous.onUndo === next.onUndo
   )

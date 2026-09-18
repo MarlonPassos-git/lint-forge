@@ -1,0 +1,243 @@
+.review-sidebar {
+  background: #f6f1e8;
+  border: 1px solid #151515;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: min(800px, calc(100svh - 92px));
+  min-width: 0;
+  overflow: auto;
+  padding: 14px;
+}
+
+.sidebar-title {
+  align-items: center;
+  display: flex;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  gap: 8px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.filter-group {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.filter-group-header {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.filter-group-header h3 {
+  color: #4c463d;
+  font:
+    800 11px / 1 "Trebuchet MS",
+    sans-serif;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.filter-group-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.filter-group-actions button {
+  background: transparent;
+  border: 0;
+  color: #c53149;
+  font:
+    800 10px / 1 "Trebuchet MS",
+    sans-serif;
+  min-height: 0;
+  padding: 2px;
+  text-decoration: underline;
+}
+
+.filter-group-actions button:focus-visible,
+.filter-group-actions button:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.filter-options {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+}
+
+.filter-option {
+  align-items: center;
+  background: #fffdf7;
+  border: 1px solid #151515;
+  cursor: pointer;
+  display: inline-flex;
+  font:
+    800 11px / 1 "Trebuchet MS",
+    sans-serif;
+  gap: 5px;
+  min-height: 24px;
+  min-width: 0;
+  padding: 4px 7px;
+  transition:
+    background-color 180ms ease,
+    box-shadow 240ms var(--motion-snap),
+    transform 240ms var(--motion-snap);
+}
+
+.filter-option span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-option:has(input:focus-visible),
+.filter-option:hover {
+  box-shadow: 2.25px 2.25px 0 #151515;
+  transform: translate(-3px, -3px);
+}
+
+.filter-option:active {
+  box-shadow: 0 0 0 #151515;
+  transform: translate(0, 0);
+}
+
+.filter-option input {
+  appearance: none;
+  aspect-ratio: 1;
+  background: #fffdf7;
+  border: 1px solid #151515;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-grid;
+  flex: 0 0 auto;
+  height: 12px;
+  margin: 0;
+  place-items: center;
+}
+
+.filter-option input::after {
+  color: #fffdf7;
+  content: "";
+  font:
+    800 10px / 1 "Trebuchet MS",
+    sans-serif;
+}
+
+.filter-option input:checked {
+  background: #d33b53;
+  border-color: #d33b53;
+}
+
+.filter-option input:checked::after {
+  content: "✓";
+}
+
+.sound-settings {
+  border-top: 1px solid #151515;
+  padding-top: 12px;
+}
+
+.sound-toggle {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font:
+    800 12px / 1 "Trebuchet MS",
+    sans-serif;
+  gap: 6px;
+}
+
+.sound-toggle input {
+  appearance: none;
+  aspect-ratio: 1;
+  background: #fffdf7;
+  border: 1px solid #151515;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-grid;
+  flex: 0 0 auto;
+  height: 14px;
+  margin: 0;
+  place-items: center;
+}
+
+.sound-toggle input::after {
+  color: #fffdf7;
+  content: "";
+  font:
+    800 10px / 1 "Trebuchet MS",
+    sans-serif;
+}
+
+.sound-toggle input:checked {
+  background: #d33b53;
+  border-color: #d33b53;
+}
+
+.sound-toggle input:checked::after {
+  content: "✓";
+}
+
+.sound-pack {
+  display: grid;
+  font:
+    800 11px / 1 "Trebuchet MS",
+    sans-serif;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.sound-pack select {
+  background: #fffdf7;
+  border: 1px solid #151515;
+  color: #151515;
+  font:
+    800 12px / 1.2 "Trebuchet MS",
+    sans-serif;
+  min-height: 32px;
+  padding: 4px 6px;
+  width: 100%;
+}
+
+.sound-pack select:focus-visible {
+  outline: 3px solid #d33b53;
+  outline-offset: 2px;
+}
+
+.sound-previews {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
+.sound-previews button {
+  font-size: 10px;
+  min-height: 30px;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.preview-off-button {
+  background: #d6d1db;
+}
+
+.preview-info-button {
+  background: #90a8ed;
+}
+
+.preview-warn-button {
+  background: #f4c542;
+}
+
+.preview-error-button {
+  background: #e85d5d;
+}

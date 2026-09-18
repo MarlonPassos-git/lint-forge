@@ -31,6 +31,10 @@ class MemoryReviewStorage implements Storage {
 }
 
 const snapshot: ReviewSnapshot = {
+  audio: {
+    enabled: false,
+    pack: 'zen',
+  },
   baseConfigText: '{}',
   choices: [{ ruleKey: 'style/useConst', decision: 'warn' }],
   currentIndex: 1,
@@ -40,6 +44,7 @@ const snapshot: ReviewSnapshot = {
   },
   filters: {
     selectedCategories: ['CSS', 'JSON'],
+    selectedDomains: ['react', 'vue'],
   },
 }
 
@@ -115,6 +120,26 @@ describe('loadReviewSnapshot', () => {
       { baseConfigText: '{}', choices: [], currentIndex: 0, filters: { selectedCategories: {} } },
     ],
     ['invalid categories', { ...snapshot, filters: { selectedCategories: ['Unknown'] } }],
+    [
+      'non-array domains',
+      {
+        baseConfigText: '{}',
+        choices: [],
+        currentIndex: 0,
+        filters: { selectedCategories: ['CSS'], selectedDomains: {} },
+      },
+    ],
+    [
+      'invalid domains',
+      {
+        ...snapshot,
+        filters: { selectedCategories: ['CSS'], selectedDomains: ['reactjs'] },
+      },
+    ],
+    ['non-object audio', { ...snapshot, audio: 'on' }],
+    ['missing audio enabled', { ...snapshot, audio: { pack: 'zen' } }],
+    ['invalid audio enabled', { ...snapshot, audio: { enabled: 'yes', pack: 'zen' } }],
+    ['invalid audio pack', { ...snapshot, audio: { enabled: true, pack: 'chiptune' } }],
   ])('removes %s snapshots', (_label, invalidSnapshot) => {
     const storage = new MemoryReviewStorage()
     storage.setItem('biome-rule-swipe:v1', JSON.stringify(invalidSnapshot))
