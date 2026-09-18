@@ -1,5 +1,5 @@
 @import "./components/review/ReviewHeader.css";
-@import "./components/sidebar/ReviewSidebar.css";
+@import "./components/setup/ReviewSetupMenu.css";
 @import "./components/layout/ReviewWorkspace.css";
 @import "./components/panels/Panels.css";
 @import "./components/rules/RuleStage.css";
@@ -14,18 +14,6 @@
   min-height: 100svh;
   min-width: 0;
   padding: 18px;
-}
-
-.workbench {
-  display: grid;
-  flex: 1 1 auto;
-  gap: 18px;
-  grid-template-columns: 240px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-  margin: 0 auto;
-  max-width: 2200px;
-  min-height: 0;
-  width: 100%;
 }
 
 button {
@@ -143,7 +131,6 @@ button:is(:hover, :focus-visible) .shortcut-hint {
 @media (min-width: 1181px) {
   .control-panel,
   .output-panel,
-  .review-sidebar,
   .rule-stage,
   .iframe-stack {
     min-height: 0;
@@ -202,14 +189,6 @@ button:is(:hover, :focus-visible) .shortcut-hint {
     height: auto;
   }
 
-  .workbench {
-    grid-template-columns: 1fr;
-  }
-
-  .review-sidebar {
-    min-height: auto;
-  }
-
   .workspace {
     flex: none;
     grid-template-columns: 1fr;
@@ -243,12 +222,8 @@ button:is(:hover, :focus-visible) .shortcut-hint {
     grid-template-columns: 1fr;
   }
 
-  .filter-options {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
   .progress-block {
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
     width: 100%;
   }
 

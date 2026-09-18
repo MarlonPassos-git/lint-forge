@@ -1,4 +1,3 @@
-import { isDecisionSoundPack } from '../audio/decisionSoundPlayer'
 import { ruleCategories } from '../domain/ruleCategories'
 import { isRuleDomain } from '../domain/ruleFilters'
 import type { ReviewSnapshot, RuleCategory } from '../domain/types'
@@ -125,9 +124,6 @@ function assertOptionalAudio(value: unknown): void {
   if (!isRecord(value)) throw invalidSnapshot('audio', value, 'object')
   if (typeof value.enabled !== 'boolean') {
     throw invalidSnapshot('audio.enabled', value.enabled, 'boolean')
-  }
-  if (!isDecisionSoundPack(value.pack)) {
-    throw invalidSnapshot('audio.pack', value.pack, 'known decision sound pack')
   }
 }
 

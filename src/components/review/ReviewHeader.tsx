@@ -1,8 +1,11 @@
 import { RotateCcw, Undo2 } from 'lucide-react'
 import { memo } from 'react'
 import { undoShortcut } from '../../domain/reviewShortcuts'
+import { ReviewSetupMenu } from '../setup/ReviewSetupMenu'
 
-type ReviewHeaderProps = {
+type ReviewSetupMenuProps = Parameters<typeof ReviewSetupMenu>[0]
+
+type ReviewHeaderProps = ReviewSetupMenuProps & {
   canUndo: boolean
   completedRules: number
   hasSelectedFilter: boolean
@@ -50,6 +53,7 @@ function ProgressActions(props: ReviewHeaderProps) {
         <kbd className="shortcut-hint">{undoShortcut.badge}</kbd>
       </button>
       <ResetButton onResetRequest={props.onResetRequest} />
+      <ReviewSetupMenu {...props} />
     </div>
   )
 }
@@ -86,12 +90,19 @@ function ResetButton({ onResetRequest }: { onResetRequest: ReviewHeaderProps['on
 
 function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHeaderProps) {
   return (
-    previous.completedRules === next.completedRules &&
+    previous.audioEnabled === next.audioEnabled &&
     previous.canUndo === next.canUndo &&
+    previous.completedRules === next.completedRules &&
     previous.hasSelectedFilter === next.hasSelectedFilter &&
     previous.progress === next.progress &&
+    previous.selectedCategories === next.selectedCategories &&
+    previous.selectedDomains === next.selectedDomains &&
     previous.totalRules === next.totalRules &&
+    previous.onAudioToggle === next.onAudioToggle &&
+    previous.onFilterGroupSelection === next.onFilterGroupSelection &&
+    previous.onFilterToggle === next.onFilterToggle &&
     previous.onResetRequest === next.onResetRequest &&
+    previous.onSoundPreview === next.onSoundPreview &&
     previous.onUndo === next.onUndo
   )
 }

@@ -32,7 +32,6 @@ import {
 import type {
   BiomeConfig,
   BiomeRule,
-  DecisionSoundPack,
   ReviewAudioSettings,
   ReviewSnapshot,
   RuleCategory,
@@ -205,12 +204,7 @@ function useSnapshotActions(storeSnapshot: StoreReviewSnapshot) {
     () => toggleDecisionSounds(storeSnapshot),
     [storeSnapshot],
   )
-  const setAudioPackAction = useCallback(
-    (pack: DecisionSoundPack) => setDecisionSoundPack(pack, storeSnapshot),
-    [storeSnapshot],
-  )
   return {
-    setAudioPack: setAudioPackAction,
     setFilterGroupSelection: setFilterGroupAction,
     toggleAudioEnabled: toggleAudioEnabledAction,
     toggleFilter: toggleFilterAction,
@@ -501,10 +495,6 @@ function toggleDecisionSounds(storeSnapshot: StoreReviewSnapshot) {
     const audio = getAudioSettings(snapshot)
     return { ...snapshot, audio: { ...audio, enabled: !audio.enabled } }
   })
-}
-
-function setDecisionSoundPack(pack: DecisionSoundPack, storeSnapshot: StoreReviewSnapshot) {
-  storeSnapshot((snapshot) => ({ ...snapshot, audio: { ...getAudioSettings(snapshot), pack } }))
 }
 
 function updatePanelVisibility(

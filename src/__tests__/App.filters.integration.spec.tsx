@@ -5,6 +5,10 @@ import App from '../App'
 import { biomeRules } from '../domain/biomeRules'
 import { getRuleCategories } from '../domain/ruleCategories'
 
+async function openReviewSetup() {
+  await userEvent.click(screen.getByRole('button', { name: 'Review setup' }))
+}
+
 describe('App review filters', () => {
   beforeEach(() => {
     vi.unstubAllGlobals()
@@ -13,6 +17,7 @@ describe('App review filters', () => {
 
   it('filters the review deck by selected categories', async () => {
     render(<App />)
+    await openReviewSetup()
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
 
@@ -22,6 +27,7 @@ describe('App review filters', () => {
 
   it('filters the review deck by selected tool domains', async () => {
     render(<App />)
+    await openReviewSetup()
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear all Languages' }))
     await userEvent.click(screen.getByRole('button', { name: 'Clear all Tools' }))
@@ -35,6 +41,7 @@ describe('App review filters', () => {
 
   it('shows a distinct state when every filter is disabled', async () => {
     render(<App />)
+    await openReviewSetup()
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear all Languages' }))
     await userEvent.click(screen.getByRole('button', { name: 'Clear all Tools' }))
@@ -44,7 +51,7 @@ describe('App review filters', () => {
     expect(screen.queryByText('All rules reviewed.')).not.toBeInTheDocument()
   })
 
-  it('restores selected languages and tools from local storage', () => {
+  it('restores selected languages and tools from local storage', async () => {
     window.localStorage.setItem(
       'biome-rule-swipe:v1',
       JSON.stringify({
@@ -57,6 +64,7 @@ describe('App review filters', () => {
     )
 
     render(<App />)
+    await openReviewSetup()
 
     expect(screen.getByRole('checkbox', { name: 'CSS' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'React' })).toBeChecked()
@@ -71,11 +79,14 @@ describe('App review filters', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
     await screen.findByText('1 decisions saved locally.')
+    await openReviewSetup()
     await userEvent.click(screen.getByRole('checkbox', { name: restoredCategory }))
     expect(screen.getByRole('checkbox', { name: restoredCategory })).not.toBeChecked()
 
     await userEvent.click(screen.getByRole('button', { name: 'Back, undo last decision' }))
 
+    // jsdom cannot simulate popover light dismiss for untrusted events, so the
+    // menu may still be open here; the filter state is what matters.
     expect(screen.getByRole('checkbox', { name: restoredCategory })).toBeChecked()
     expect(screen.getByTitle(`${restoredRule.name} documentation`)).toBeVisible()
     expect(JSON.parse(window.localStorage.getItem('biome-rule-swipe:v1') ?? '{}')).toMatchObject({
@@ -85,6 +96,7 @@ describe('App review filters', () => {
 
     view.unmount()
     render(<App />)
+    await openReviewSetup()
     expect(screen.getByRole('checkbox', { name: restoredCategory })).toBeChecked()
     expect(screen.getByTitle(`${restoredRule.name} documentation`)).toBeVisible()
   })

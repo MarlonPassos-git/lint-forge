@@ -43,50 +43,47 @@ test('reveals a shortcut hint and reviews a rule from the keyboard', async ({ pa
   )
 })
 
-test('keeps category filters after reload', async ({ page }) => {
+test('keeps language and tool filters after reload', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByRole('checkbox', { name: 'JavaScript' }).click()
+  await page.getByRole('button', { name: 'Review setup' }).click()
+  await page.getByRole('checkbox', { name: 'JavaScript', exact: true }).click()
+  await page.getByRole('checkbox', { name: 'React', exact: true }).click()
   await page.reload()
+  await page.getByRole('button', { name: 'Review setup' }).click()
 
-  await expect(page.getByRole('checkbox', { name: 'JavaScript' })).not.toBeChecked()
-  await expect(page.getByRole('checkbox', { name: 'CSS' })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'JavaScript', exact: true })).not.toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'CSS', exact: true })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'React', exact: true })).not.toBeChecked()
 })
 
-test('keeps tool filters and sound settings after reload', async ({ page }) => {
+test('keeps the sound toggle after reload and previews a decision', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByRole('checkbox', { name: 'React', exact: true }).click()
+  await page.getByRole('button', { name: 'Review setup' }).click()
+  await page.getByRole('button', { name: 'Preview warn sound' }).click()
   await page.getByRole('checkbox', { name: 'Decision sounds', exact: true }).click()
   await page.reload()
+  await page.getByRole('button', { name: 'Review setup' }).click()
 
-  await expect(page.getByRole('checkbox', { name: 'React', exact: true })).not.toBeChecked()
   await expect(
     page.getByRole('checkbox', { name: 'Decision sounds', exact: true }),
   ).not.toBeChecked()
   await expect(page.getByRole('button', { name: 'Preview warn sound' })).toBeDisabled()
 })
 
-test('switches the decision sound pack and previews a decision', async ({ page }) => {
-  await page.goto('/')
-
-  await page.getByLabel('Pack').selectOption('zen')
-  await page.getByRole('button', { name: 'Preview warn sound' }).click()
-  await page.reload()
-
-  await expect(page.getByLabel('Pack')).toHaveValue('zen')
-})
-
 test('requires confirmation before clearing review state', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByRole('checkbox', { name: 'JavaScript' }).click()
+  await page.getByRole('button', { name: 'Review setup' }).click()
+  await page.getByRole('checkbox', { name: 'JavaScript', exact: true }).click()
   await page.getByRole('button', { name: 'Reset review' }).click()
 
   await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Cancel' }).click()
 
-  await expect(page.getByRole('checkbox', { name: 'JavaScript' })).not.toBeChecked()
+  await page.getByRole('button', { name: 'Review setup' }).click()
+  await expect(page.getByRole('checkbox', { name: 'JavaScript', exact: true })).not.toBeChecked()
   await expect(page.getByRole('dialog', { name: 'Reset review?' })).toBeHidden()
 })

@@ -14,6 +14,9 @@ importers:
 
   .:
     dependencies:
+      '@oddbird/popover-polyfill':
+        specifier: ^0.7.2
+        version: 0.7.2
       lucide-react:
         specifier: ^1.17.0
         version: 1.17.0(react@19.2.6)
@@ -469,6 +472,9 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
+
+  '@oddbird/popover-polyfill@0.7.2':
+    resolution: {integrity: sha512-f9R6XrZEshs/5qugqNH8wAqVzwuXLsnJW+iFQnPzX+/5pEr13b5bmxDVbJWj1U+E7LKJMcSu+IFif49mgacbYQ==}
 
   '@oxc-project/types@0.133.0':
     resolution: {integrity: sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA==}
@@ -1761,6 +1767,8 @@ snapshots:
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.2
     optional: true
+
+  '@oddbird/popover-polyfill@0.7.2': {}
 
   '@oxc-project/types@0.133.0': {}
 

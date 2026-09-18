@@ -1,41 +1,27 @@
 import { type CueName, createUISFX, type PackName, type UISFXPlayer } from 'uisfx'
-import type { DecisionSoundPack, ReviewAudioSettings, RuleDecision } from '../domain/types'
+import type { ReviewAudioSettings, RuleDecision } from '../domain/types'
 
 export const defaultDecisionSoundSettings: ReviewAudioSettings = {
   enabled: true,
-  pack: 'mechanical',
 }
 
-/** Semantic uisfx cues that match each review decision. */
+const decisionSoundPack: PackName = 'zen'
+
+/**
+ * Semantic uisfx cues per decision. The Zen pack renders `warning` and `error`
+ * with near-identical pitch contours, so error uses `blocked` for a clearly
+ * lower and heavier failure signal instead.
+ */
 export const decisionSoundCueByDecision: Record<RuleDecision, CueName> = {
-  error: 'error',
+  error: 'blocked',
   info: 'info',
   off: 'toggle-off',
   warn: 'warning',
 }
 
-export const decisionSoundPackOptions: ReadonlyArray<{
-  label: string
-  name: DecisionSoundPack
-}> = [
-  { label: 'Mechanical', name: 'mechanical' },
-  { label: 'Minimal', name: 'minimal' },
-  { label: 'Sci-fi', name: 'scifi' },
-  { label: 'Studio', name: 'studio' },
-  { label: 'Soft', name: 'soft' },
-  { label: 'Zen', name: 'zen' },
-  { label: 'Glass', name: 'glass' },
-  { label: 'Organic', name: 'organic' },
-  { label: 'Dreamy', name: 'dreamy' },
-  { label: 'Cinematic', name: 'cinematic' },
-  { label: 'Arcade', name: 'arcade' },
-  { label: 'Rubber', name: 'rubber' },
-]
-
 export type DecisionSoundPlayer = {
   play: (decision: RuleDecision) => void
   setEnabled: (enabled: boolean) => void
-  setPack: (pack: DecisionSoundPack) => void
 }
 
 type UISFXPlayerFactory = (settings: ReviewAudioSettings) => UISFXPlayer
@@ -79,28 +65,15 @@ export function createDecisionSoundPlayer(
       if (!player) return
       safely(() => player?.setEnabled(enabled))
     },
-    setPack(pack) {
-      settings = { ...settings, pack }
-      if (!player) return
-      safely(() => player?.setPack(toUISFXPackName(pack)))
-    },
   }
 }
 
 function createDefaultUISFXPlayer(settings: ReviewAudioSettings): UISFXPlayer {
   return createUISFX({
     enabled: settings.enabled,
-    pack: toUISFXPackName(settings.pack),
+    pack: decisionSoundPack,
     volume: 0.9,
   })
-}
-
-function toUISFXPackName(pack: DecisionSoundPack): PackName {
-  return pack
-}
-
-export function isDecisionSoundPack(value: unknown): value is DecisionSoundPack {
-  return decisionSoundPackOptions.some((option) => option.name === value)
 }
 
 export const decisionSoundPlayer = createDecisionSoundPlayer()

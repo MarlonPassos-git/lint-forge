@@ -4,6 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { decisionSoundPlayer } from '../audio/decisionSoundPlayer'
 
+async function openReviewSetup() {
+  await userEvent.click(screen.getByRole('button', { name: 'Review setup' }))
+}
+
 describe('App decision sounds', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -23,34 +27,35 @@ describe('App decision sounds', () => {
     await waitFor(() => expect(screen.getByText('1 decisions saved locally.')).toBeInTheDocument())
   })
 
-  it('previews a decision sound from the side panel', async () => {
+  it('previews a decision sound from the review setup menu', async () => {
     const playSpy = vi.spyOn(decisionSoundPlayer, 'play').mockImplementation(() => undefined)
     render(<App />)
+    await openReviewSetup()
 
     await userEvent.click(screen.getByRole('button', { name: 'Preview error sound' }))
 
     expect(playSpy).toHaveBeenCalledWith('error')
   })
 
-  it('persists sound settings and restores them after a reload', async () => {
+  it('persists the sound toggle and restores it after a reload', async () => {
     const view = render(<App />)
+    await openReviewSetup()
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'Decision sounds' }))
-    await userEvent.selectOptions(screen.getByLabelText('Pack'), 'zen')
 
     expect(JSON.parse(window.localStorage.getItem('biome-rule-swipe:v1') ?? '{}')).toMatchObject({
-      audio: { enabled: false, pack: 'zen' },
+      audio: { enabled: false },
     })
 
     view.unmount()
     render(<App />)
+    await openReviewSetup()
 
     expect(screen.getByRole('checkbox', { name: 'Decision sounds' })).not.toBeChecked()
-    expect(screen.getByLabelText('Pack')).toHaveValue('zen')
     expect(screen.getByRole('button', { name: 'Preview warn sound' })).toBeDisabled()
   })
 
-  it('defaults to mechanical sounds for snapshots without audio settings', () => {
+  it('defaults to sounds enabled for snapshots without audio settings', async () => {
     window.localStorage.setItem(
       'biome-rule-swipe:v1',
       JSON.stringify({
@@ -62,8 +67,8 @@ describe('App decision sounds', () => {
     )
 
     render(<App />)
+    await openReviewSetup()
 
     expect(screen.getByRole('checkbox', { name: 'Decision sounds' })).toBeChecked()
-    expect(screen.getByLabelText('Pack')).toHaveValue('mechanical')
   })
 })

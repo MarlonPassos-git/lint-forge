@@ -1,23 +1,40 @@
-.review-sidebar {
-  background: #f6f1e8;
-  border: 1px solid #151515;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: min(800px, calc(100svh - 92px));
-  min-width: 0;
-  overflow: auto;
-  padding: 14px;
+.setup-menu-button {
+  background: #fffdf7;
+  color: #151515;
+  aspect-ratio: 1;
+  min-height: 44px;
+  padding: 0;
+  width: 44px;
 }
 
-.sidebar-title {
-  align-items: center;
-  display: flex;
+.setup-menu-button[aria-expanded="true"] {
+  background: #151515;
+  color: #fffdf7;
+  box-shadow: 0 0 0 #151515;
+  transform: translate(0, 0);
+}
+
+.review-setup-popover {
+  background: #f6f1e8;
+  border: 1px solid #151515;
+  box-shadow: 5px 5px 0 #151515;
+  inset: auto;
+  margin: 0;
+  max-width: calc(100vw - 16px);
+  overflow: auto;
+  padding: 14px;
+  position: fixed;
+}
+
+.review-setup-popover:focus {
+  outline: none;
+}
+
+.setup-title {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 20px;
-  gap: 8px;
   line-height: 1.1;
-  margin: 0;
+  margin: 0 0 12px;
 }
 
 .filter-group {
@@ -25,6 +42,10 @@
   margin: 0;
   min-width: 0;
   padding: 0;
+}
+
+.filter-group + .filter-group {
+  margin-top: 14px;
 }
 
 .filter-group-header {
@@ -46,25 +67,32 @@
 
 .filter-group-actions {
   display: flex;
-  gap: 2px;
+  gap: 4px;
 }
 
 .filter-group-actions button {
-  background: transparent;
-  border: 0;
-  color: #c53149;
+  background: #fffdf7;
+  color: #151515;
   font:
     800 10px / 1 "Trebuchet MS",
     sans-serif;
   min-height: 0;
-  padding: 2px;
-  text-decoration: underline;
+  padding: 3px 6px;
+  transition:
+    background-color 180ms ease,
+    box-shadow 240ms var(--motion-snap),
+    transform 240ms var(--motion-snap);
 }
 
 .filter-group-actions button:focus-visible,
 .filter-group-actions button:hover {
-  box-shadow: none;
-  transform: none;
+  box-shadow: 2.25px 2.25px 0 #151515;
+  transform: translate(-3px, -3px);
+}
+
+.filter-group-actions button:active {
+  box-shadow: 0 0 0 #151515;
+  transform: translate(0, 0);
 }
 
 .filter-options {
@@ -142,17 +170,38 @@
 
 .sound-settings {
   border-top: 1px solid #151515;
+  margin-top: 14px;
   padding-top: 12px;
 }
 
 .sound-toggle {
   align-items: center;
+  border: 1px solid transparent;
+  box-sizing: border-box;
   cursor: pointer;
   display: flex;
   font:
     800 12px / 1 "Trebuchet MS",
     sans-serif;
   gap: 6px;
+  padding: 4px 6px;
+  transition:
+    background-color 180ms ease,
+    box-shadow 240ms var(--motion-snap),
+    transform 240ms var(--motion-snap);
+}
+
+.sound-toggle:has(input:focus-visible),
+.sound-toggle:hover {
+  background: #fffdf7;
+  border-color: #151515;
+  box-shadow: 2.25px 2.25px 0 #151515;
+  transform: translate(-3px, -3px);
+}
+
+.sound-toggle:active {
+  box-shadow: 0 0 0 #151515;
+  transform: translate(0, 0);
 }
 
 .sound-toggle input {
@@ -184,32 +233,6 @@
 
 .sound-toggle input:checked::after {
   content: "✓";
-}
-
-.sound-pack {
-  display: grid;
-  font:
-    800 11px / 1 "Trebuchet MS",
-    sans-serif;
-  gap: 4px;
-  margin-top: 10px;
-}
-
-.sound-pack select {
-  background: #fffdf7;
-  border: 1px solid #151515;
-  color: #151515;
-  font:
-    800 12px / 1.2 "Trebuchet MS",
-    sans-serif;
-  min-height: 32px;
-  padding: 4px 6px;
-  width: 100%;
-}
-
-.sound-pack select:focus-visible {
-  outline: 3px solid #d33b53;
-  outline-offset: 2px;
 }
 
 .sound-previews {

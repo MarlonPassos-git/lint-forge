@@ -55,10 +55,13 @@ describe('App import and reset flow', () => {
   it('keeps review state when reset is canceled', async () => {
     render(<App />)
 
+    await userEvent.click(screen.getByRole('button', { name: 'Review setup' }))
     await userEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
     await userEvent.click(screen.getByRole('button', { name: 'Reset review' }))
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
 
+    // jsdom cannot simulate popover light dismiss for untrusted events, so the
+    // menu may still be open here; the filter state is what matters.
     expect(screen.getByRole('checkbox', { name: 'JavaScript' })).not.toBeChecked()
     expect(screen.queryByRole('dialog', { name: 'Reset review?' })).not.toBeInTheDocument()
   })

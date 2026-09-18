@@ -23,8 +23,8 @@ Lint Forge is a Biome rule review app for developers who want a custom `biome.js
 - Import an existing `biome.json` and skip explicitly configured rules.
 - Choose `Off`, `Info`, `Warn`, or `Error` for each remaining rule.
 - Keep three Biome documentation iframes mounted for faster navigation.
-- Filter the review deck by language and tool domain, such as React, Next.js, Vue, and Playwright.
-- Play a distinct decision sound for each outcome with a selectable sound pack and mute toggle.
+- Filter the review deck by language and tool domain, such as React, Next.js, Vue, and Playwright, from the review setup menu.
+- Play a distinct decision sound for each outcome with a mute toggle and per-decision previews.
 - Persist imported config, decisions, filters, sound settings, progress, and panel visibility in `localStorage`.
 - Generate a final `biome.json` preview as decisions are made.
 

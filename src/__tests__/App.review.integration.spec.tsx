@@ -20,7 +20,7 @@ describe('App review flow', () => {
       'readonly',
     )
     expect(screen.getByText(`0/${biomeRules.length}`)).toBeInTheDocument()
-    expect(screen.getByRole('complementary', { name: 'Review setup' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Review setup' })).toBeInTheDocument()
     expect(screen.getByTitle(`${biomeRules[0].name} documentation`)).toBeInTheDocument()
   })
 
@@ -143,7 +143,8 @@ describe('App review flow', () => {
     vi.useFakeTimers()
     render(<App />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Review setup' }))
+    fireEvent.keyDown(window, { key: 'K', shiftKey: true })
     fireEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
     act(() => vi.advanceTimersByTime(280))
 

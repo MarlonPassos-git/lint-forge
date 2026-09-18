@@ -31,23 +31,8 @@ export type RuleDomain =
 
 export type RuleFilter = RuleCategory | RuleDomain
 
-export type DecisionSoundPack =
-  | 'arcade'
-  | 'cinematic'
-  | 'dreamy'
-  | 'glass'
-  | 'mechanical'
-  | 'minimal'
-  | 'organic'
-  | 'rubber'
-  | 'scifi'
-  | 'soft'
-  | 'studio'
-  | 'zen'
-
 export type ReviewAudioSettings = {
   enabled: boolean
-  pack: DecisionSoundPack
 }
 
 export type RuleChoice = {

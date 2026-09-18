@@ -12,7 +12,8 @@ Core user flow:
 - Decisions are `off`, `info`, `warn`, or `error`.
 - Generated `biome.json` is shown in the output panel.
 - Progress counts imported explicit rules plus decisions made in the app.
-- Side panel visibility, language/tool filters, sound settings, imported config, current progress, and decisions persist in `localStorage`.
+- A review setup popover beside the reset button holds language/tool filters and sound settings.
+- Panel visibility, filters, sound settings, imported config, current progress, and decisions persist in `localStorage`.
 
 ## Stack
 
@@ -24,6 +25,7 @@ Core user flow:
 - Biome for linting and formatting
 - `@biomejs/biome` is used as the source for the official configuration schema.
 - `uisfx` provides semantic decision sound effects.
+- `@oddbird/popover-polyfill` covers the Popover API in older browsers.
 - `lucide-react` provides icons.
 
 ## Commands
@@ -56,7 +58,8 @@ pnpm test:e2e
 - `src/domain/ruleFilters.ts`: language/tool filter metadata, catalog tool domains, and deck selection rules.
 - `src/domain/reviewState.ts`: progress/window/choice helpers.
 - `src/audio/decisionSoundPlayer.ts`: wraps `uisfx` behind the project-owned decision sound player.
-- `src/components/sidebar/ReviewSidebar.tsx`: side panel with language/tool filters and sound settings.
+- `src/components/setup/ReviewSetupMenu.tsx`: header-anchored popover with filters, sound settings, and previews.
+- `src/main.tsx`: conditionally loads the popover polyfill before rendering.
 - `src/storage/localReviewStore.ts`: `localStorage` persistence.
 - `scripts/generate-biome-rules.mjs`: builds `biomeRules.ts` from `node_modules/@biomejs/biome/configuration_schema.json` plus `biome explain` rule domains.
 - `DESIGN.md`: visual identity tokens and Gumroad-inspired neo-brutalist design rules for UI work.
@@ -91,17 +94,18 @@ Do not crawler-scrape the docs unless schema generation stops being viable. Pref
 
 - Imported explicit rules are treated as complete and skipped.
 - `recommended: true` is not expanded into completed rules. Only explicit rules count as configured.
-- Language and tool filters live in the left side panel and affect the review deck and progress denominator.
+- Language and tool filters live in a review setup popover anchored to the header button beside reset, and affect the review deck and progress denominator.
 - A rule enters the deck when one of its languages or one of its tool domains is selected.
 - Already-decided rules do not reappear when filters change.
+- The setup popover uses the native Popover API: light dismiss and Escape close it, focus moves into the panel on open, and focus returns to the trigger on close. `@oddbird/popover-polyfill` is loaded only when `popover` is missing from `HTMLElement.prototype`.
 - Reset is destructive and must open a confirmation modal with `Cancel` and `Reset everything`.
 - Do not require typing text for reset confirmation.
 - The iframe must render normally. Do not crop, translate, or otherwise mutate the cross-origin Biome docs iframe; prior crop attempts made navigation feel broken.
 - Browser security prevents editing DOM inside the Biome docs iframe because it is cross-origin.
 - Decision buttons float over the bottom of the card to preserve iframe height.
 - `Error` button should not be green. Current semantics: Off neutral, Info blue-purple, Warn amber, Error red.
-- Decision sounds use semantic `uisfx` cues: `off` → `toggle-off`, `info` → `info`, `warn` → `warning`, `error` → `error`. Audio failures must never block a review decision.
-- The side panel controls sound on/off, the `uisfx` pack, and per-decision previews.
+- Decision sounds use the Zen `uisfx` pack with semantic cues: `off` → `toggle-off`, `info` → `info`, `warn` → `warning`, `error` → `blocked` (the `error` cue is too close to `warning` in Zen). Audio failures must never block a review decision.
+- The setup menu controls sound on/off and plays per-decision previews.
 
 ## Persistence
 
@@ -120,9 +124,8 @@ Snapshot shape includes:
 - `filters.selectedCategories`
 - `filters.selectedDomains`
 - `audio.enabled`
-- `audio.pack`
 
-Handle corrupt stored JSON by clearing the key and returning `null`. Legacy snapshots without `selectedDomains` or `audio` fall back to all tool domains selected and mechanical sounds enabled.
+Handle corrupt stored JSON by clearing the key and returning `null`. Legacy snapshots without `selectedDomains` fall back to all tool domains selected, snapshots without `audio` default to sounds enabled, and the retired `audio.pack` field is ignored.
 
 ## Code Style
 
@@ -192,8 +195,10 @@ Useful checks:
 - There are 3 `iframe.docs-frame` elements during active review.
 - Reset modal appears before destructive reset.
 - Side panel hide/show state survives reload.
+- The review setup menu opens beside reset, closes on Escape and outside click, and returns focus to its trigger.
 - Language and tool filters survive reload and update progress.
-- Decision sound settings and pack survive reload; a preview creates a running `AudioContext` and logs no errors.
+- Filter chips and All/None controls show hover and focus lift states.
+- Decision sound settings survive reload; a preview creates a running `AudioContext` and logs no errors.
 - No unwanted horizontal overflow.
 
 ## Package Manager
