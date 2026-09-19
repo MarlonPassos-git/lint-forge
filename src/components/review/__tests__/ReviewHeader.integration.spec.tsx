@@ -21,7 +21,6 @@ function createHeaderProps(overrides: Partial<ReviewHeaderProps> = {}): ReviewHe
     onFilterGroupSelection: vi.fn(),
     onFilterToggle: vi.fn(),
     onResetRequest: vi.fn(),
-    onSoundPreview: vi.fn(),
     onUndo: vi.fn(),
     ...overrides,
   }

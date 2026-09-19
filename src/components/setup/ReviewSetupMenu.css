@@ -174,7 +174,16 @@
   padding-top: 12px;
 }
 
-.sound-toggle {
+.sound-settings h3 {
+  color: #4c463d;
+  font:
+    800 11px / 1 "Trebuchet MS",
+    sans-serif;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.sound-switch {
   align-items: center;
   border: 1px solid transparent;
   box-sizing: border-box;
@@ -183,84 +192,83 @@
   font:
     800 12px / 1 "Trebuchet MS",
     sans-serif;
-  gap: 6px;
+  gap: 10px;
+  justify-content: space-between;
   padding: 4px 6px;
+}
+
+.sound-switch-control {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.sound-switch-state {
+  color: #4c463d;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  min-width: 3ch;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.sound-switch-track {
+  background: #d6d1db;
+  border: 1px solid #151515;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 22px;
+  position: relative;
   transition:
     background-color 180ms ease,
     box-shadow 240ms var(--motion-snap),
     transform 240ms var(--motion-snap);
+  width: 44px;
 }
 
-.sound-toggle:has(input:focus-visible),
-.sound-toggle:hover {
+.sound-switch-track input {
+  cursor: pointer;
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.sound-switch-track::after {
   background: #fffdf7;
-  border-color: #151515;
+  border: 1px solid #151515;
+  box-sizing: border-box;
+  content: "";
+  height: 18px;
+  left: 1px;
+  position: absolute;
+  top: 1px;
+  transition: transform 180ms var(--motion-snap);
+  width: 18px;
+}
+
+.sound-switch-track:hover {
   box-shadow: 2.25px 2.25px 0 #151515;
   transform: translate(-3px, -3px);
 }
 
-.sound-toggle:active {
+.sound-switch-track:active {
   box-shadow: 0 0 0 #151515;
   transform: translate(0, 0);
 }
 
-.sound-toggle input {
-  appearance: none;
-  aspect-ratio: 1;
-  background: #fffdf7;
-  border: 1px solid #151515;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: inline-grid;
-  flex: 0 0 auto;
-  height: 14px;
-  margin: 0;
-  place-items: center;
+.sound-switch-track:has(input:focus-visible) {
+  outline: 3px solid #d33b53;
+  outline-offset: 3px;
 }
 
-.sound-toggle input::after {
-  color: #fffdf7;
-  content: "";
-  font:
-    800 10px / 1 "Trebuchet MS",
-    sans-serif;
-}
-
-.sound-toggle input:checked {
+.sound-switch-track:has(input:checked) {
   background: #d33b53;
-  border-color: #d33b53;
 }
 
-.sound-toggle input:checked::after {
-  content: "✓";
-}
-
-.sound-previews {
-  display: grid;
-  gap: 4px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 10px;
-}
-
-.sound-previews button {
-  font-size: 10px;
-  min-height: 30px;
-  min-width: 0;
-  padding: 4px 2px;
-}
-
-.preview-off-button {
-  background: #d6d1db;
-}
-
-.preview-info-button {
-  background: #90a8ed;
-}
-
-.preview-warn-button {
-  background: #f4c542;
-}
-
-.preview-error-button {
-  background: #e85d5d;
+.sound-switch-track:has(input:checked)::after {
+  transform: translateX(22px);
 }

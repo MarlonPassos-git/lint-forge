@@ -58,7 +58,7 @@ pnpm test:e2e
 - `src/domain/ruleFilters.ts`: language/tool filter metadata, catalog tool domains, and deck selection rules.
 - `src/domain/reviewState.ts`: progress/window/choice helpers.
 - `src/audio/decisionSoundPlayer.ts`: wraps `uisfx` behind the project-owned decision sound player.
-- `src/components/setup/ReviewSetupMenu.tsx`: header-anchored popover with filters, sound settings, and previews.
+- `src/components/setup/ReviewSetupMenu.tsx`: header-anchored popover with filters and sound settings.
 - `src/main.tsx`: conditionally loads the popover polyfill before rendering.
 - `src/storage/localReviewStore.ts`: `localStorage` persistence.
 - `scripts/generate-biome-rules.mjs`: builds `biomeRules.ts` from `node_modules/@biomejs/biome/configuration_schema.json` plus `biome explain` rule domains.
@@ -105,7 +105,7 @@ Do not crawler-scrape the docs unless schema generation stops being viable. Pref
 - Decision buttons float over the bottom of the card to preserve iframe height.
 - `Error` button should not be green. Current semantics: Off neutral, Info blue-purple, Warn amber, Error red.
 - Decision sounds use the Zen `uisfx` pack with semantic cues: `off` → `toggle-off`, `info` → `info`, `warn` → `warning`, `error` → `blocked` (the `error` cue is too close to `warning` in Zen). Audio failures must never block a review decision.
-- The setup menu controls sound on/off and plays per-decision previews.
+- The setup menu controls sound on/off through a single switch.
 
 ## Persistence
 
@@ -198,7 +198,7 @@ Useful checks:
 - The review setup menu opens beside reset, closes on Escape and outside click, and returns focus to its trigger.
 - Language and tool filters survive reload and update progress.
 - Filter chips and All/None controls show hover and focus lift states.
-- Decision sound settings survive reload; a preview creates a running `AudioContext` and logs no errors.
+- Decision sound settings survive reload and toggling logs no browser errors.
 - No unwanted horizontal overflow.
 
 ## Package Manager

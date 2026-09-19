@@ -1,4 +1,4 @@
-import { Menu, Volume2, VolumeX } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { type RefObject, useEffect, useRef, useState } from 'react'
 import { ruleCategories } from '../../domain/ruleCategories'
 import {
@@ -6,7 +6,7 @@ import {
   type RuleFilterGroup,
   ruleDomainLabels,
 } from '../../domain/ruleFilters'
-import type { RuleCategory, RuleDecision, RuleDomain, RuleFilter } from '../../domain/types'
+import type { RuleCategory, RuleDomain, RuleFilter } from '../../domain/types'
 
 type ReviewSetupMenuProps = {
   audioEnabled: boolean
@@ -15,7 +15,6 @@ type ReviewSetupMenuProps = {
   onAudioToggle: () => void
   onFilterGroupSelection: (group: RuleFilterGroup, isSelected: boolean) => void
   onFilterToggle: (filter: RuleFilter) => void
-  onSoundPreview: (decision: RuleDecision) => void
 }
 
 const setupPanelId = 'review-setup-popover'
@@ -213,60 +212,30 @@ function FilterOption(props: {
   )
 }
 
-function SoundSettings(props: ReviewSetupMenuProps) {
+function SoundSettings(props: { audioEnabled: boolean; onAudioToggle: () => void }) {
   return (
     <section className="sound-settings" aria-labelledby="sound-settings-heading">
-      <div className="filter-group-header">
-        <h3 id="sound-settings-heading">Sound</h3>
-        {props.audioEnabled ? (
-          <Volume2 aria-hidden="true" size={18} />
-        ) : (
-          <VolumeX aria-hidden="true" size={18} />
-        )}
-      </div>
-      <label className="sound-toggle" htmlFor="decision-sounds-enabled">
-        <input
-          checked={props.audioEnabled}
-          id="decision-sounds-enabled"
-          onChange={props.onAudioToggle}
-          type="checkbox"
-        />
+      <h3 id="sound-settings-heading">Sound</h3>
+      <label className="sound-switch" htmlFor="decision-sounds-enabled">
         <span>Decision sounds</span>
+        <span className="sound-switch-control">
+          <span aria-hidden="true" className="sound-switch-state">
+            {props.audioEnabled ? 'On' : 'Off'}
+          </span>
+          <span className="sound-switch-track">
+            <input
+              aria-checked={props.audioEnabled}
+              checked={props.audioEnabled}
+              id="decision-sounds-enabled"
+              onChange={props.onAudioToggle}
+              role="switch"
+              type="checkbox"
+            />
+          </span>
+        </span>
       </label>
-      <SoundPreviews audioEnabled={props.audioEnabled} onSoundPreview={props.onSoundPreview} />
     </section>
   )
-}
-
-function SoundPreviews(props: {
-  audioEnabled: boolean
-  onSoundPreview: (decision: RuleDecision) => void
-}) {
-  return (
-    <div className="sound-previews">
-      {soundPreviewDecisions.map((decision) => (
-        <button
-          aria-label={`Preview ${decision} sound`}
-          className={`preview-${decision}-button`}
-          disabled={!props.audioEnabled}
-          key={decision}
-          onClick={() => props.onSoundPreview(decision)}
-          type="button"
-        >
-          {decisionLabels[decision]}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-const soundPreviewDecisions: RuleDecision[] = ['off', 'info', 'warn', 'error']
-
-const decisionLabels: Record<RuleDecision, string> = {
-  error: 'Error',
-  info: 'Info',
-  off: 'Off',
-  warn: 'Warn',
 }
 
 function getFilterInputId(filter: RuleFilter) {

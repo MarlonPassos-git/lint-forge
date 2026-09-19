@@ -22,7 +22,6 @@ function App() {
         onFilterGroupSelection={review.setFilterGroupSelection}
         onFilterToggle={review.toggleFilter}
         onResetRequest={review.openResetDialog}
-        onSoundPreview={review.previewDecisionSound}
         onUndo={review.undoLastDecision}
       />
       <ReviewWorkspace controller={review} />

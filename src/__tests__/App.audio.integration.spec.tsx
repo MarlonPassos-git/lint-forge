@@ -27,21 +27,11 @@ describe('App decision sounds', () => {
     await waitFor(() => expect(screen.getByText('1 decisions saved locally.')).toBeInTheDocument())
   })
 
-  it('previews a decision sound from the review setup menu', async () => {
-    const playSpy = vi.spyOn(decisionSoundPlayer, 'play').mockImplementation(() => undefined)
-    render(<App />)
-    await openReviewSetup()
-
-    await userEvent.click(screen.getByRole('button', { name: 'Preview error sound' }))
-
-    expect(playSpy).toHaveBeenCalledWith('error')
-  })
-
-  it('persists the sound toggle and restores it after a reload', async () => {
+  it('persists the sound switch and restores it after a reload', async () => {
     const view = render(<App />)
     await openReviewSetup()
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Decision sounds' }))
+    await userEvent.click(screen.getByRole('switch', { name: 'Decision sounds' }))
 
     expect(JSON.parse(window.localStorage.getItem('biome-rule-swipe:v1') ?? '{}')).toMatchObject({
       audio: { enabled: false },
@@ -51,8 +41,7 @@ describe('App decision sounds', () => {
     render(<App />)
     await openReviewSetup()
 
-    expect(screen.getByRole('checkbox', { name: 'Decision sounds' })).not.toBeChecked()
-    expect(screen.getByRole('button', { name: 'Preview warn sound' })).toBeDisabled()
+    expect(screen.getByRole('switch', { name: 'Decision sounds' })).not.toBeChecked()
   })
 
   it('defaults to sounds enabled for snapshots without audio settings', async () => {
@@ -69,6 +58,6 @@ describe('App decision sounds', () => {
     render(<App />)
     await openReviewSetup()
 
-    expect(screen.getByRole('checkbox', { name: 'Decision sounds' })).toBeChecked()
+    expect(screen.getByRole('switch', { name: 'Decision sounds' })).toBeChecked()
   })
 })

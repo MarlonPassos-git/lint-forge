@@ -160,26 +160,8 @@ components:
     typography: "{typography.body-md}"
     rounded: "{rounded.none}"
     padding: 14px
-  sound-preview-off:
+  sound-switch:
     backgroundColor: "{colors.off}"
-    textColor: "{colors.primary}"
-    typography: "{typography.label-sm}"
-    rounded: "{rounded.none}"
-    padding: 4px
-  sound-preview-info:
-    backgroundColor: "{colors.gumroad-purple}"
-    textColor: "{colors.primary}"
-    typography: "{typography.label-sm}"
-    rounded: "{rounded.none}"
-    padding: 4px
-  sound-preview-warn:
-    backgroundColor: "{colors.warning}"
-    textColor: "{colors.primary}"
-    typography: "{typography.label-sm}"
-    rounded: "{rounded.none}"
-    padding: 4px
-  sound-preview-error:
-    backgroundColor: "{colors.danger}"
     textColor: "{colors.primary}"
     typography: "{typography.label-sm}"
     rounded: "{rounded.none}"
@@ -339,9 +321,9 @@ Gumroad's pinned `components/ui` kit uses a consistent recipe: `border border-bo
 
 **Filter chips:** Small, bordered, square labels with native checkboxes. They should read as controls, not tags or pills. They live in the review setup menu and wrap in a compact grid; group All/None actions are small bordered buttons with the same hover lift as other controls.
 
-**Setup menu:** A header-anchored popover with the panel recipe: warm neutral surface, black border, offset shadow, `14px` padding, vertical sections separated by rules. It holds language filters, tool filters, and sound settings. The trigger sits beside the reset button, and expanded state inverts the button to ink.
+**Setup menu:** A header-anchored popover with the panel recipe: warm neutral surface, black border, offset shadow, `14px` padding, vertical sections separated by rules. It holds language filters, tool filters, and the sound switch. The trigger sits beside the reset button, and expanded state inverts the button to ink.
 
-**Sound previews:** A four-column row of small square buttons reserved for Off, Info, Warn, and Error. They mirror decision colors exactly so the preview reads as a decision control, and they disable when decision sounds are off.
+**Sound switch:** A single on/off switch for decision sounds. Keep square geometry, a bordered track, and a square knob; the track fills with tertiary when sound is on and stays neutral when off, with an On/Off caption for redundancy. Only the switch carries the hover lift and the pressed press-in; the label row and its caption stay static, because the text is not a button. Decision colors stay exclusive to the decision bar.
 
 **Text areas and code output:** Monospace, high contrast, square corners. Imported config uses paper surface; generated output uses ink surface with warm code text.
 

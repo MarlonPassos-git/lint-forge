@@ -102,7 +102,6 @@ function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHead
     previous.onFilterGroupSelection === next.onFilterGroupSelection &&
     previous.onFilterToggle === next.onFilterToggle &&
     previous.onResetRequest === next.onResetRequest &&
-    previous.onSoundPreview === next.onSoundPreview &&
     previous.onUndo === next.onUndo
   )
 }

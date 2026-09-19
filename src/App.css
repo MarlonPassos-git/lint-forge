@@ -45,7 +45,8 @@ button:focus-visible,
 textarea:focus-visible,
 .docs-frame:focus-visible,
 .output-code:focus-visible,
-.filter-option input:focus-visible {
+.filter-option input:focus-visible,
+.sound-switch-track:has(input:focus-visible) {
   outline: 3px solid #d33b53;
   outline-offset: 3px;
 }
@@ -153,6 +154,7 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   .docs-frame:focus-visible,
   .output-code:focus-visible,
   .filter-option input:focus-visible,
+  .sound-switch-track:has(input:focus-visible),
   .filter-option:has(input:focus-visible) {
     box-shadow: none;
     outline: 2px solid CanvasText;
@@ -174,7 +176,9 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   .decision-bar,
   .decision-bar button::after,
   .shortcut-hint,
-  .show-panel-button {
+  .show-panel-button,
+  .sound-switch-track,
+  .sound-switch-track::after {
     transition: none;
   }
 
@@ -223,7 +227,7 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   }
 
   .progress-block {
-    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
     width: 100%;
   }
 
@@ -240,5 +244,11 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   .iframe-stack,
   .rule-stage {
     min-height: 560px;
+  }
+}
+
+@media (max-width: 440px) {
+  .progress-block {
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
 }

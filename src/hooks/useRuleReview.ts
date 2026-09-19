@@ -71,10 +71,6 @@ export function useRuleReview() {
     decisionSoundPlayer,
   )
   const dialogActions = useResetDialogActions(actions.resetReview, setIsResetDialogOpen)
-  const previewDecisionSound = useCallback(
-    (decision: RuleChoice['decision']) => decisionSoundPlayer.play(decision),
-    [],
-  )
   useReviewShortcuts({
     isDecisionBlocked:
       !state.activeRule || state.isResetDialogOpen || Boolean(state.outgoingDecision),
@@ -87,7 +83,6 @@ export function useRuleReview() {
     ...state,
     ...actions,
     ...dialogActions,
-    previewDecisionSound,
     setImportText,
   }
 }

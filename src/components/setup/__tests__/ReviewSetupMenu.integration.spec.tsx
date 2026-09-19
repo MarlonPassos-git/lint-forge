@@ -15,7 +15,6 @@ function createSetupMenuProps(
     onAudioToggle: vi.fn(),
     onFilterGroupSelection: vi.fn(),
     onFilterToggle: vi.fn(),
-    onSoundPreview: vi.fn(),
     ...overrides,
   }
 }
@@ -65,25 +64,26 @@ describe('ReviewSetupMenu', () => {
     expect(props.onFilterGroupSelection).toHaveBeenNthCalledWith(2, 'domains', true)
   })
 
-  it('reports the sound toggle and previews each decision sound', async () => {
+  it('reports the sound switch and shows its state', async () => {
     const props = renderSetupMenu()
     await openSetupMenu()
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Decision sounds' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Preview warn sound' }))
+    const soundSwitch = screen.getByRole('switch', { name: 'Decision sounds' })
+    expect(soundSwitch).toBeChecked()
+    expect(screen.getByText('On')).toBeInTheDocument()
+
+    await userEvent.click(soundSwitch)
 
     expect(props.onAudioToggle).toHaveBeenCalledTimes(1)
-    expect(props.onSoundPreview).toHaveBeenCalledWith('warn')
   })
 
-  it('disables previews when sounds are off', async () => {
+  it('shows sounds off without decision preview buttons', async () => {
     renderSetupMenu({ audioEnabled: false })
     await openSetupMenu()
 
-    for (const decision of ['off', 'info', 'warn', 'error']) {
-      expect(screen.getByRole('button', { name: `Preview ${decision} sound` })).toBeDisabled()
-    }
-    expect(screen.getByRole('checkbox', { name: 'Decision sounds' })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: 'Decision sounds' })).not.toBeChecked()
+    expect(screen.getByText('Off')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Preview .* sound/ })).not.toBeInTheDocument()
   })
 
   it('opens from the keyboard and tabs into the filter controls', async () => {

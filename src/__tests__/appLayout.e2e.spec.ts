@@ -64,6 +64,25 @@ test('keeps every desktop decision control inside the viewport', async ({ page }
   }
 })
 
+test('keeps the setup menu beside reset at narrow widths', async ({ page }) => {
+  for (const width of [640, 320]) {
+    await page.setViewportSize({ height: 900, width })
+    await page.goto('/')
+
+    const resetButton = page.getByRole('button', { name: 'Reset review' })
+    const setupTrigger = page.getByRole('button', { name: 'Review setup' })
+    await expect(setupTrigger).toBeVisible()
+
+    const resetBounds = await resetButton.boundingBox()
+    const setupBounds = await setupTrigger.boundingBox()
+    expect(resetBounds).not.toBeNull()
+    expect(setupBounds).not.toBeNull()
+    expect(Math.abs((setupBounds?.y ?? 0) - (resetBounds?.y ?? 0))).toBeLessThanOrEqual(2)
+    expect(setupBounds?.x).toBeGreaterThan(resetBounds?.x ?? 0)
+    expect(await getHorizontalOverflow(page)).toBe(0)
+  }
+})
+
 async function getHorizontalOverflow(page: Page) {
   return page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
