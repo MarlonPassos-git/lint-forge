@@ -31,9 +31,6 @@ class MemoryReviewStorage implements Storage {
 }
 
 const snapshot: ReviewSnapshot = {
-  audio: {
-    enabled: false,
-  },
   baseConfigText: '{}',
   choices: [{ ruleKey: 'style/useConst', decision: 'warn' }],
   currentIndex: 1,
@@ -135,9 +132,6 @@ describe('loadReviewSnapshot', () => {
         filters: { selectedCategories: ['CSS'], selectedDomains: ['reactjs'] },
       },
     ],
-    ['non-object audio', { ...snapshot, audio: 'on' }],
-    ['missing audio enabled', { ...snapshot, audio: { pack: 'zen' } }],
-    ['invalid audio enabled', { ...snapshot, audio: { enabled: 'yes' } }],
   ])('removes %s snapshots', (_label, invalidSnapshot) => {
     const storage = new MemoryReviewStorage()
     storage.setItem('biome-rule-swipe:v1', JSON.stringify(invalidSnapshot))
@@ -146,14 +140,14 @@ describe('loadReviewSnapshot', () => {
     expect(storage.length).toBe(0)
   })
 
-  it('ignores the retired sound pack field from older snapshots', () => {
+  it('ignores retired audio fields from older snapshots', () => {
     const storage = new MemoryReviewStorage()
     storage.setItem(
       'biome-rule-swipe:v1',
       JSON.stringify({ ...snapshot, audio: { enabled: false, pack: 'zen' } }),
     )
 
-    expect(loadReviewSnapshot(storage)?.audio).toEqual({ enabled: false, pack: 'zen' })
+    expect(loadReviewSnapshot(storage)).toEqual(snapshot)
   })
 
   it('removes corrupted snapshots', () => {

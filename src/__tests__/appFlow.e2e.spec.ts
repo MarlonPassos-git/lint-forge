@@ -57,33 +57,6 @@ test('keeps language and tool filters after reload', async ({ page }) => {
   await expect(page.getByRole('checkbox', { name: 'React', exact: true })).not.toBeChecked()
 })
 
-test('keeps the sound switch after reload', async ({ page }) => {
-  await page.goto('/')
-
-  await page.getByRole('button', { name: 'Review setup' }).click()
-  await page.getByRole('switch', { name: 'Decision sounds' }).click()
-  await page.reload()
-  await page.getByRole('button', { name: 'Review setup' }).click()
-
-  await expect(page.getByRole('switch', { name: 'Decision sounds' })).not.toBeChecked()
-})
-
-test('lifts only the sound switch on hover', async ({ page }) => {
-  await page.goto('/')
-
-  await page.getByRole('button', { name: 'Review setup' }).click()
-  const soundRow = page.locator('.sound-switch')
-  const soundSwitch = page.getByRole('switch', { name: 'Decision sounds' })
-  const soundTrack = page.locator('.sound-switch-track')
-
-  await soundRow.hover()
-  await expect(soundTrack).toHaveCSS('transform', 'none')
-
-  await soundSwitch.hover()
-  await expect(soundTrack).toHaveCSS('transform', 'matrix(1, 0, 0, 1, -3, -3)')
-  await expect(soundRow).toHaveCSS('transform', 'none')
-})
-
 test('requires confirmation before clearing review state', async ({ page }) => {
   await page.goto('/')
 

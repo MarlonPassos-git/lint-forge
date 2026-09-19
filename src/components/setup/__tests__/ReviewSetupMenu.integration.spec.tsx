@@ -9,10 +9,8 @@ function createSetupMenuProps(
   overrides: Partial<Parameters<typeof ReviewSetupMenu>[0]> = {},
 ): Parameters<typeof ReviewSetupMenu>[0] {
   return {
-    audioEnabled: true,
     selectedCategories: [...ruleCategories],
     selectedDomains: [...availableRuleDomains],
-    onAudioToggle: vi.fn(),
     onFilterGroupSelection: vi.fn(),
     onFilterToggle: vi.fn(),
     ...overrides,
@@ -62,28 +60,6 @@ describe('ReviewSetupMenu', () => {
 
     expect(props.onFilterGroupSelection).toHaveBeenNthCalledWith(1, 'categories', false)
     expect(props.onFilterGroupSelection).toHaveBeenNthCalledWith(2, 'domains', true)
-  })
-
-  it('reports the sound switch and shows its state', async () => {
-    const props = renderSetupMenu()
-    await openSetupMenu()
-
-    const soundSwitch = screen.getByRole('switch', { name: 'Decision sounds' })
-    expect(soundSwitch).toBeChecked()
-    expect(screen.getByText('On')).toBeInTheDocument()
-
-    await userEvent.click(soundSwitch)
-
-    expect(props.onAudioToggle).toHaveBeenCalledTimes(1)
-  })
-
-  it('shows sounds off without decision preview buttons', async () => {
-    renderSetupMenu({ audioEnabled: false })
-    await openSetupMenu()
-
-    expect(screen.getByRole('switch', { name: 'Decision sounds' })).not.toBeChecked()
-    expect(screen.getByText('Off')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Preview .* sound/ })).not.toBeInTheDocument()
   })
 
   it('opens from the keyboard and tabs into the filter controls', async () => {

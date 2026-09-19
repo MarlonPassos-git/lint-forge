@@ -9,7 +9,6 @@ type ReviewHeaderProps = Parameters<typeof ReviewHeader>[0]
 
 function createHeaderProps(overrides: Partial<ReviewHeaderProps> = {}): ReviewHeaderProps {
   return {
-    audioEnabled: true,
     canUndo: false,
     completedRules: 0,
     hasSelectedFilter: false,
@@ -17,7 +16,6 @@ function createHeaderProps(overrides: Partial<ReviewHeaderProps> = {}): ReviewHe
     selectedCategories: [...ruleCategories],
     selectedDomains: [...availableRuleDomains],
     totalRules: 0,
-    onAudioToggle: vi.fn(),
     onFilterGroupSelection: vi.fn(),
     onFilterToggle: vi.fn(),
     onResetRequest: vi.fn(),
