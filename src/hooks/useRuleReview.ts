@@ -1,9 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  type DecisionSoundPlayer,
-  decisionSoundPlayer,
-  defaultDecisionSoundSettings,
-} from '../audio/decisionSoundPlayer'
 import { biomeRules } from '../domain/biomeRules'
 import {
   buildBiomeConfig,
@@ -32,7 +27,6 @@ import {
 import type {
   BiomeConfig,
   BiomeRule,
-  ReviewAudioSettings,
   ReviewSnapshot,
   RuleCategory,
   RuleChoice,
@@ -44,7 +38,6 @@ import {
   loadReviewSnapshot,
   saveReviewSnapshot,
 } from '../storage/localReviewStore'
-import { useDecisionSoundSettings } from './useDecisionSoundSettings'
 import { useReviewShortcuts } from './useReviewShortcuts'
 
 const defaultInput = '{\n  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json"\n}\n'
@@ -61,14 +54,12 @@ export function useRuleReview() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
   const [outgoingDecision, setOutgoingDecision] = useState<RuleChoice['decision'] | null>(null)
   const state = useReviewState(snapshot, importText, errorText, isResetDialogOpen, outgoingDecision)
-  useDecisionSoundSettings(state.audio)
   const actions = useReviewActions(
     state,
     setSnapshot,
     setImportText,
     setErrorText,
     setOutgoingDecision,
-    decisionSoundPlayer,
   )
   const dialogActions = useResetDialogActions(actions.resetReview, setIsResetDialogOpen)
   useReviewShortcuts({
@@ -124,7 +115,6 @@ function useReviewState(
     () => storedSelectedDomains ?? [...availableRuleDomains],
     [storedSelectedDomains],
   )
-  const audio = useMemo(() => getAudioSettings(snapshot), [snapshot])
   const baseConfig = useMemo(
     () => safeParseConfig(snapshot.baseConfigText),
     [snapshot.baseConfigText],
@@ -145,7 +135,6 @@ function useReviewState(
   const completedRules = getCompletedRuleCount(filteredRules.length, pendingRules.length, 0)
 
   return buildReviewState(snapshot, importText, errorText, {
-    audio,
     completedRules,
     filteredRules,
     isResetDialogOpen,
@@ -164,11 +153,9 @@ function useReviewActions(
   setImportText: (value: string) => void,
   setErrorText: (value: string) => void,
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
-  decisionSounds: DecisionSoundPlayer,
 ) {
   const storeSnapshot = useSnapshotStore(setSnapshot)
   const primaryActions = usePrimaryReviewActions({
-    decisionSounds,
     setErrorText,
     setImportText,
     setOutgoingDecision,
@@ -195,20 +182,14 @@ function useSnapshotActions(storeSnapshot: StoreReviewSnapshot) {
       updatePanelVisibility(patch, storeSnapshot),
     [storeSnapshot],
   )
-  const toggleAudioEnabledAction = useCallback(
-    () => toggleDecisionSounds(storeSnapshot),
-    [storeSnapshot],
-  )
   return {
     setFilterGroupSelection: setFilterGroupAction,
-    toggleAudioEnabled: toggleAudioEnabledAction,
     toggleFilter: toggleFilterAction,
     updatePanelVisibility: updatePanelVisibilityAction,
   }
 }
 
 type PrimaryReviewActionDependencies = {
-  decisionSounds: DecisionSoundPlayer
   state: ReturnType<typeof buildReviewState>
   setSnapshot: SetReviewSnapshot
   setImportText: (value: string) => void
@@ -218,15 +199,8 @@ type PrimaryReviewActionDependencies = {
 }
 
 function usePrimaryReviewActions(dependencies: PrimaryReviewActionDependencies) {
-  const {
-    decisionSounds,
-    setErrorText,
-    setImportText,
-    setOutgoingDecision,
-    setSnapshot,
-    state,
-    storeSnapshot,
-  } = dependencies
+  const { setErrorText, setImportText, setOutgoingDecision, setSnapshot, state, storeSnapshot } =
+    dependencies
   const { cancelDecisionTimer, decisionTimer } = usePendingDecisionTimer(setOutgoingDecision)
   const chooseRule = useChooseRuleAction(
     state.activeRule,
@@ -234,7 +208,6 @@ function usePrimaryReviewActions(dependencies: PrimaryReviewActionDependencies) 
     decisionTimer,
     storeSnapshot,
     setOutgoingDecision,
-    decisionSounds,
   )
   const startReview = useStartReviewAction(
     state.importText,
@@ -309,7 +282,6 @@ function useChooseRuleAction(
   decisionTimer: { current: number | null },
   storeSnapshot: StoreReviewSnapshot,
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
-  decisionSounds: DecisionSoundPlayer,
 ) {
   return useCallback(
     (decision: RuleChoice['decision']) =>
@@ -320,16 +292,8 @@ function useChooseRuleAction(
         decisionTimer,
         storeSnapshot,
         setOutgoingDecision,
-        decisionSounds,
       ),
-    [
-      activeRule,
-      decisionSounds,
-      decisionTimer,
-      outgoingDecision,
-      setOutgoingDecision,
-      storeSnapshot,
-    ],
+    [activeRule, decisionTimer, outgoingDecision, setOutgoingDecision, storeSnapshot],
   )
 }
 
@@ -371,10 +335,8 @@ function chooseRule(
   decisionTimer: { current: number | null },
   storeSnapshot: StoreReviewSnapshot,
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
-  decisionSounds: DecisionSoundPlayer,
 ) {
   if (!activeRule || outgoingDecision) return
-  decisionSounds.play(decision)
   setOutgoingDecision(decision)
   decisionTimer.current = window.setTimeout(() => {
     storeSnapshot((snapshot) => saveRuleDecision(snapshot, activeRule, decision))
@@ -388,7 +350,6 @@ function buildReviewState(
   importText: string,
   errorText: string,
   derived: {
-    audio: ReviewAudioSettings
     completedRules: number
     filteredRules: BiomeRule[]
     isResetDialogOpen: boolean
@@ -404,7 +365,6 @@ function buildReviewState(
   const isOutputVisible = snapshot.panels?.outputVisible ?? true
   return {
     activeRule: derived.pendingRules[0],
-    audio: derived.audio,
     canUndo: snapshot.choices.length > 0 && !derived.outgoingDecision,
     choices: snapshot.choices,
     completedRules: derived.completedRules,
@@ -485,13 +445,6 @@ function storeRuleFilterGroupSelection(
   }))
 }
 
-function toggleDecisionSounds(storeSnapshot: StoreReviewSnapshot) {
-  storeSnapshot((snapshot) => {
-    const audio = getAudioSettings(snapshot)
-    return { ...snapshot, audio: { ...audio, enabled: !audio.enabled } }
-  })
-}
-
 function updatePanelVisibility(
   visibilityPatch: Partial<NonNullable<ReviewSnapshot['panels']>>,
   storeSnapshot: StoreReviewSnapshot,
@@ -542,7 +495,6 @@ function loadInitialSnapshot(): ReviewSnapshot {
 
 function createInitialSnapshot(): ReviewSnapshot {
   return {
-    audio: { ...defaultDecisionSoundSettings },
     baseConfigText: defaultInput,
     choices: [],
     currentIndex: 0,
@@ -560,8 +512,4 @@ function getSelectedCategories(snapshot: ReviewSnapshot): RuleCategory[] {
 
 function getSelectedDomains(snapshot: ReviewSnapshot): RuleDomain[] {
   return snapshot.filters?.selectedDomains ?? [...availableRuleDomains]
-}
-
-function getAudioSettings(snapshot: ReviewSnapshot): ReviewAudioSettings {
-  return snapshot.audio ?? { ...defaultDecisionSoundSettings }
 }

@@ -10,7 +10,6 @@ function App() {
   return (
     <main className="app-shell">
       <ReviewHeader
-        audioEnabled={review.audio.enabled}
         canUndo={review.canUndo}
         completedRules={review.completedRules}
         hasSelectedFilter={review.hasSelectedFilter}
@@ -18,7 +17,6 @@ function App() {
         selectedCategories={review.selectedCategories}
         selectedDomains={review.selectedDomains}
         totalRules={review.filteredRules.length}
-        onAudioToggle={review.toggleAudioEnabled}
         onFilterGroupSelection={review.setFilterGroupSelection}
         onFilterToggle={review.toggleFilter}
         onResetRequest={review.openResetDialog}

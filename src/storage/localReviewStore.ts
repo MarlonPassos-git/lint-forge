@@ -36,13 +36,17 @@ export function clearReviewSnapshot(storage: Storage) {
   storage.removeItem(STORE_KEY)
 }
 
+/** Normalizes stored data to the current snapshot shape, dropping retired fields. */
 function migrateReviewSnapshot(snapshot: StoredReviewSnapshot): ReviewSnapshot {
   return {
-    ...snapshot,
+    baseConfigText: snapshot.baseConfigText,
     choices: snapshot.choices.map((choice) => ({
       ...choice,
       decision: choice.decision === 'ignored' ? 'off' : choice.decision,
     })),
+    currentIndex: snapshot.currentIndex,
+    filters: snapshot.filters,
+    panels: snapshot.panels,
   }
 }
 
@@ -60,7 +64,6 @@ function assertStoredReviewSnapshot(value: unknown): asserts value is StoredRevi
   assertStoredChoices(value.choices)
   assertOptionalPanels(value.panels)
   assertOptionalFilters(value.filters)
-  assertOptionalAudio(value.audio)
 }
 
 function assertStoredChoices(values: unknown[]): asserts values is StoredRuleChoice[] {
@@ -116,14 +119,6 @@ function assertOptionalDomains(value: unknown): void {
     if (!isRuleDomain(domain)) {
       throw invalidSnapshot('filters.selectedDomains', domain, 'known rule domain')
     }
-  }
-}
-
-function assertOptionalAudio(value: unknown): void {
-  if (value === undefined) return
-  if (!isRecord(value)) throw invalidSnapshot('audio', value, 'object')
-  if (typeof value.enabled !== 'boolean') {
-    throw invalidSnapshot('audio.enabled', value.enabled, 'boolean')
   }
 }
 

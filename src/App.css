@@ -45,8 +45,7 @@ button:focus-visible,
 textarea:focus-visible,
 .docs-frame:focus-visible,
 .output-code:focus-visible,
-.filter-option input:focus-visible,
-.sound-switch-track:has(input:focus-visible) {
+.filter-option input:focus-visible {
   outline: 3px solid #d33b53;
   outline-offset: 3px;
 }
@@ -154,7 +153,6 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   .docs-frame:focus-visible,
   .output-code:focus-visible,
   .filter-option input:focus-visible,
-  .sound-switch-track:has(input:focus-visible),
   .filter-option:has(input:focus-visible) {
     box-shadow: none;
     outline: 2px solid CanvasText;
@@ -176,9 +174,7 @@ button:is(:hover, :focus-visible) .shortcut-hint {
   .decision-bar,
   .decision-bar button::after,
   .shortcut-hint,
-  .show-panel-button,
-  .sound-switch-track,
-  .sound-switch-track::after {
+  .show-panel-button {
     transition: none;
   }
 

@@ -9,10 +9,8 @@ import {
 import type { RuleCategory, RuleDomain, RuleFilter } from '../../domain/types'
 
 type ReviewSetupMenuProps = {
-  audioEnabled: boolean
   selectedCategories: RuleCategory[]
   selectedDomains: RuleDomain[]
-  onAudioToggle: () => void
   onFilterGroupSelection: (group: RuleFilterGroup, isSelected: boolean) => void
   onFilterToggle: (filter: RuleFilter) => void
 }
@@ -68,7 +66,6 @@ export function ReviewSetupMenu(props: ReviewSetupMenuProps) {
           onFilterToggle={props.onFilterToggle}
           onGroupSelection={(isSelected) => props.onFilterGroupSelection('domains', isSelected)}
         />
-        <SoundSettings {...props} />
       </section>
     </>
   )
@@ -209,32 +206,6 @@ function FilterOption(props: {
       />
       <span>{props.label}</span>
     </label>
-  )
-}
-
-function SoundSettings(props: { audioEnabled: boolean; onAudioToggle: () => void }) {
-  return (
-    <section className="sound-settings" aria-labelledby="sound-settings-heading">
-      <h3 id="sound-settings-heading">Sound</h3>
-      <label className="sound-switch" htmlFor="decision-sounds-enabled">
-        <span>Decision sounds</span>
-        <span className="sound-switch-control">
-          <span aria-hidden="true" className="sound-switch-state">
-            {props.audioEnabled ? 'On' : 'Off'}
-          </span>
-          <span className="sound-switch-track">
-            <input
-              aria-checked={props.audioEnabled}
-              checked={props.audioEnabled}
-              id="decision-sounds-enabled"
-              onChange={props.onAudioToggle}
-              role="switch"
-              type="checkbox"
-            />
-          </span>
-        </span>
-      </label>
-    </section>
   )
 }
 

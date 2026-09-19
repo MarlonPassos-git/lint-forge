@@ -31,10 +31,6 @@ export type RuleDomain =
 
 export type RuleFilter = RuleCategory | RuleDomain
 
-export type ReviewAudioSettings = {
-  enabled: boolean
-}
-
 export type RuleChoice = {
   ruleKey: string
   decision: RuleDecision
@@ -60,5 +56,4 @@ export type ReviewSnapshot = {
     selectedCategories: RuleCategory[]
     selectedDomains?: RuleDomain[]
   }
-  audio?: ReviewAudioSettings
 }

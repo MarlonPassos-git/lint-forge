@@ -90,7 +90,6 @@ function ResetButton({ onResetRequest }: { onResetRequest: ReviewHeaderProps['on
 
 function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHeaderProps) {
   return (
-    previous.audioEnabled === next.audioEnabled &&
     previous.canUndo === next.canUndo &&
     previous.completedRules === next.completedRules &&
     previous.hasSelectedFilter === next.hasSelectedFilter &&
@@ -98,7 +97,6 @@ function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHead
     previous.selectedCategories === next.selectedCategories &&
     previous.selectedDomains === next.selectedDomains &&
     previous.totalRules === next.totalRules &&
-    previous.onAudioToggle === next.onAudioToggle &&
     previous.onFilterGroupSelection === next.onFilterGroupSelection &&
     previous.onFilterToggle === next.onFilterToggle &&
     previous.onResetRequest === next.onResetRequest &&
