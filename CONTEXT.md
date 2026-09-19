@@ -31,16 +31,11 @@ _Avoid_: Remaining rule, undecided rule
 A language category or tool domain that decides which **Pending Rule**s enter the review deck.
 _Avoid_: Category, tool, tag
 
-**Decision Sound**:
-The short interface sound played when a **Rule Decision** is saved.
-_Avoid_: Click, beep, alert
-
 ## Relationships
 
 - A **Pending Rule** receives exactly one **Rule Decision** during review
 - A **Rule Decision** is one of **Off**, **Info**, **Warn**, or **Error**
 - A **Pending Rule** appears in the review deck when one of its **Rule Filter**s is selected
-- Each **Rule Decision** maps to its own **Decision Sound**
 
 ## Example dialogue
 
