@@ -14,17 +14,24 @@ import {
   getVisibleRuleWindow,
   removeLastRuleChoice,
 } from '../domain/reviewState'
+import { getRuleCategories, ruleCategories } from '../domain/ruleCategories'
 import {
-  filterRulesByCategories,
-  getRuleCategories,
-  ruleCategories,
-} from '../domain/ruleCategories'
+  availableRuleDomains,
+  filterRulesBySelection,
+  hasSelectedFilters,
+  isRuleDomain,
+  type RuleFilterGroup,
+  setRuleFilterGroupSelection,
+  toggleSelectedFilter,
+} from '../domain/ruleFilters'
 import type {
   BiomeConfig,
   BiomeRule,
   ReviewSnapshot,
   RuleCategory,
   RuleChoice,
+  RuleDomain,
+  RuleFilter,
 } from '../domain/types'
 import {
   clearReviewSnapshot,
@@ -103,13 +110,18 @@ function useReviewState(
     () => storedSelectedCategories ?? [...ruleCategories],
     [storedSelectedCategories],
   )
+  const storedSelectedDomains = snapshot.filters?.selectedDomains
+  const selectedDomains = useMemo(
+    () => storedSelectedDomains ?? [...availableRuleDomains],
+    [storedSelectedDomains],
+  )
   const baseConfig = useMemo(
     () => safeParseConfig(snapshot.baseConfigText),
     [snapshot.baseConfigText],
   )
   const filteredRules = useMemo(
-    () => filterRulesByCategories(biomeRules, selectedCategories),
-    [selectedCategories],
+    () => filterRulesBySelection(biomeRules, selectedCategories, selectedDomains),
+    [selectedCategories, selectedDomains],
   )
   const pendingRules = useMemo(
     () => getReviewableRules(filteredRules, baseConfig, snapshot.choices),
@@ -130,6 +142,7 @@ function useReviewState(
     outgoingDecision,
     pendingRules,
     selectedCategories,
+    selectedDomains,
     visibleRules,
   })
 }
@@ -155,8 +168,13 @@ function useReviewActions(
 }
 
 function useSnapshotActions(storeSnapshot: StoreReviewSnapshot) {
-  const toggleCategoryAction = useCallback(
-    (category: RuleCategory) => toggleCategory(category, storeSnapshot),
+  const toggleFilterAction = useCallback(
+    (filter: RuleFilter) => toggleReviewFilter(filter, storeSnapshot),
+    [storeSnapshot],
+  )
+  const setFilterGroupAction = useCallback(
+    (group: RuleFilterGroup, isSelected: boolean) =>
+      storeRuleFilterGroupSelection(group, isSelected, storeSnapshot),
     [storeSnapshot],
   )
   const updatePanelVisibilityAction = useCallback(
@@ -165,7 +183,8 @@ function useSnapshotActions(storeSnapshot: StoreReviewSnapshot) {
     [storeSnapshot],
   )
   return {
-    toggleCategory: toggleCategoryAction,
+    setFilterGroupSelection: setFilterGroupAction,
+    toggleFilter: toggleFilterAction,
     updatePanelVisibility: updatePanelVisibilityAction,
   }
 }
@@ -209,19 +228,25 @@ function usePrimaryReviewActions(dependencies: PrimaryReviewActionDependencies) 
       const { choices, restoredChoice } = removeLastRuleChoice(snapshot.choices)
       if (!restoredChoice) return snapshot
       const restoredRule = biomeRules.find((rule) => toRuleKey(rule) === restoredChoice.ruleKey)
-      const selectedCategories = snapshot.filters?.selectedCategories ?? [...ruleCategories]
-      const restoredCategories = restoredRule ? getRuleCategories(restoredRule) : []
       return {
         ...snapshot,
         choices,
         currentIndex: Math.max(snapshot.currentIndex - 1, 0),
-        filters: {
-          selectedCategories: [...new Set([...selectedCategories, ...restoredCategories])],
-        },
+        filters: restoreChosenRuleFilters(snapshot, restoredRule),
       }
     })
   }, [state.outgoingDecision, storeSnapshot])
   return { chooseRule, resetReview, startReview, undoLastDecision }
+}
+
+function restoreChosenRuleFilters(snapshot: ReviewSnapshot, restoredRule: BiomeRule | undefined) {
+  const selectedCategories = getSelectedCategories(snapshot)
+  const selectedDomains = getSelectedDomains(snapshot)
+  if (!restoredRule) return { selectedCategories, selectedDomains }
+  return {
+    selectedCategories: [...new Set([...selectedCategories, ...getRuleCategories(restoredRule)])],
+    selectedDomains: [...new Set([...selectedDomains, ...restoredRule.domains])],
+  }
 }
 
 function useSnapshotStore(setSnapshot: SetReviewSnapshot) {
@@ -312,7 +337,6 @@ function chooseRule(
   setOutgoingDecision: (decision: RuleChoice['decision'] | null) => void,
 ) {
   if (!activeRule || outgoingDecision) return
-  playClickTone(decision)
   setOutgoingDecision(decision)
   decisionTimer.current = window.setTimeout(() => {
     storeSnapshot((snapshot) => saveRuleDecision(snapshot, activeRule, decision))
@@ -333,6 +357,7 @@ function buildReviewState(
     outgoingDecision: RuleChoice['decision'] | null
     pendingRules: BiomeRule[]
     selectedCategories: RuleCategory[]
+    selectedDomains: RuleDomain[]
     visibleRules: BiomeRule[]
   },
 ) {
@@ -345,7 +370,7 @@ function buildReviewState(
     completedRules: derived.completedRules,
     errorText,
     filteredRules: derived.filteredRules,
-    hasSelectedCategory: derived.selectedCategories.length > 0,
+    hasSelectedFilter: hasSelectedFilters(derived.selectedCategories, derived.selectedDomains),
     importText,
     isInputVisible,
     isOutputVisible,
@@ -354,6 +379,7 @@ function buildReviewState(
     outgoingDecision: derived.outgoingDecision,
     progress: getProgressPercent(derived.filteredRules.length, derived.completedRules),
     selectedCategories: derived.selectedCategories,
+    selectedDomains: derived.selectedDomains,
     snapshot,
     visibleRules: derived.visibleRules,
   }
@@ -387,13 +413,35 @@ function resetReview(
   setSnapshot(createInitialSnapshot())
 }
 
-function toggleCategory(category: RuleCategory, storeSnapshot: StoreReviewSnapshot) {
+function toggleReviewFilter(filter: RuleFilter, storeSnapshot: StoreReviewSnapshot) {
+  storeSnapshot((snapshot) => {
+    const filters = isRuleDomain(filter)
+      ? {
+          selectedCategories: getSelectedCategories(snapshot),
+          selectedDomains: toggleSelectedFilter(getSelectedDomains(snapshot), filter),
+        }
+      : {
+          selectedCategories: toggleSelectedFilter(getSelectedCategories(snapshot), filter),
+          selectedDomains: getSelectedDomains(snapshot),
+        }
+    return { ...snapshot, currentIndex: 0, filters }
+  })
+}
+
+function storeRuleFilterGroupSelection(
+  group: RuleFilterGroup,
+  isSelected: boolean,
+  storeSnapshot: StoreReviewSnapshot,
+) {
   storeSnapshot((snapshot) => ({
     ...snapshot,
     currentIndex: 0,
-    filters: {
-      selectedCategories: getToggledCategories(getSelectedCategories(snapshot), category),
-    },
+    filters: setRuleFilterGroupSelection(
+      group,
+      isSelected,
+      getSelectedCategories(snapshot),
+      getSelectedDomains(snapshot),
+    ),
   }))
 }
 
@@ -423,16 +471,6 @@ function saveRuleDecision(
   }
 }
 
-function playClickTone(decision: RuleChoice['decision']) {
-  const audioContext = new AudioContext()
-  const oscillator = audioContext.createOscillator()
-  const frequencies = { error: 620, info: 360, off: 240, warn: 460 }
-  oscillator.frequency.value = frequencies[decision]
-  oscillator.connect(audioContext.destination)
-  oscillator.start()
-  oscillator.stop(audioContext.currentTime + 0.045)
-}
-
 function createImportedSnapshot(snapshot: ReviewSnapshot, baseConfigText: string): ReviewSnapshot {
   return {
     baseConfigText,
@@ -460,18 +498,18 @@ function createInitialSnapshot(): ReviewSnapshot {
     baseConfigText: defaultInput,
     choices: [],
     currentIndex: 0,
-    filters: { selectedCategories: [...ruleCategories] },
+    filters: {
+      selectedCategories: [...ruleCategories],
+      selectedDomains: [...availableRuleDomains],
+    },
     panels: { inputVisible: true, outputVisible: true },
   }
 }
 
-function getSelectedCategories(snapshot: ReviewSnapshot) {
+function getSelectedCategories(snapshot: ReviewSnapshot): RuleCategory[] {
   return snapshot.filters?.selectedCategories ?? [...ruleCategories]
 }
 
-function getToggledCategories(selectedCategories: RuleCategory[], category: RuleCategory) {
-  if (selectedCategories.includes(category)) {
-    return selectedCategories.filter((selectedCategory) => selectedCategory !== category)
-  }
-  return [...selectedCategories, category]
+function getSelectedDomains(snapshot: ReviewSnapshot): RuleDomain[] {
+  return snapshot.filters?.selectedDomains ?? [...availableRuleDomains]
 }

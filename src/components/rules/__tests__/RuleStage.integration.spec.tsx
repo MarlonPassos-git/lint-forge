@@ -10,6 +10,7 @@ const visibleRules: BiomeRule[] = [
     name: 'noAriaHiddenOnFocusable',
     summary: 'Disallow aria-hidden on focusable elements.',
     title: 'No Aria Hidden On Focusable',
+    domains: [],
     url: 'https://biomejs.dev/linter/rules/no-aria-hidden-on-focusable',
   },
   {
@@ -17,6 +18,7 @@ const visibleRules: BiomeRule[] = [
     name: 'useConst',
     summary: 'Require const declarations.',
     title: 'Use Const',
+    domains: [],
     url: 'https://biomejs.dev/linter/rules/use-const',
   },
   {
@@ -24,6 +26,7 @@ const visibleRules: BiomeRule[] = [
     name: 'noUnusedVariables',
     summary: 'Disallow unused variables.',
     title: 'No Unused Variables',
+    domains: [],
     url: 'https://biomejs.dev/linter/rules/no-unused-variables',
   },
 ]
@@ -33,7 +36,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
         onChoose={vi.fn()}
@@ -68,7 +71,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
         onChoose={vi.fn()}
@@ -85,7 +88,7 @@ describe('RuleStage', () => {
     const { rerender } = render(
       <RuleStage
         activeRule={visibleRules[0]}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
         onChoose={onChoose}
@@ -99,7 +102,7 @@ describe('RuleStage', () => {
     rerender(
       <RuleStage
         activeRule={visibleRules[0]}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision="warn"
         rules={visibleRules}
         onChoose={onChoose}
@@ -119,7 +122,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
         onChoose={vi.fn()}
@@ -135,19 +138,19 @@ describe('RuleStage', () => {
     const { rerender } = render(
       <RuleStage
         activeRule={undefined}
-        hasSelectedCategory={false}
+        hasSelectedFilter={false}
         outgoingDecision={null}
         rules={[]}
         onChoose={vi.fn()}
       />,
     )
 
-    expect(screen.getByRole('heading', { name: 'No categories selected.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'No filters selected.' })).toBeInTheDocument()
 
     rerender(
       <RuleStage
         activeRule={undefined}
-        hasSelectedCategory={true}
+        hasSelectedFilter={true}
         outgoingDecision={null}
         rules={[]}
         onChoose={vi.fn()}

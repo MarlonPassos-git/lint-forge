@@ -3,12 +3,45 @@ import { expect, type Page, test } from '@playwright/test'
 test('keeps only the active docs iframe in the keyboard tab order', async ({ page }) => {
   await page.goto('/')
 
-  const focusedNames = await collectKeyboardControlNames(page, 15)
+  const focusedNames = await collectKeyboardControlNames(page, 10)
 
   expect(focusedNames).toContain('Reset review')
   expect(focusedNames).toContain('Base file')
   expect(focusedNames).toContain('Warn')
   expect(focusedNames).toContain('noAccessKey documentation')
+})
+
+test('opens the review setup menu from the keyboard and closes it with Escape', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  const trigger = page.getByRole('button', { name: 'Review setup' })
+  const javascriptFilter = page.getByRole('checkbox', { name: 'JavaScript' })
+  await trigger.focus()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+  await page.keyboard.press('Enter')
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(javascriptFilter).toBeVisible()
+
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('button', { name: 'Select all Languages' })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  await expect(javascriptFilter).toBeFocused()
+  await page.keyboard.press('Space')
+  await expect(javascriptFilter).not.toBeChecked()
+
+  await page.keyboard.press('Escape')
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(javascriptFilter).toBeHidden()
+  await expect(trigger).toBeFocused()
+
+  await page.keyboard.press('Enter')
+  await expect(javascriptFilter).toBeVisible()
+  await page.getByRole('heading', { name: 'Lint Forge' }).click()
+  await expect(javascriptFilter).toBeHidden()
 })
 
 test('offers a focused skip link before active documentation', async ({ page }) => {

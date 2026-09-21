@@ -27,10 +27,15 @@ A **Rule Decision** that reports a rule violation as an error.
 A Biome rule without an imported explicit configuration or saved **Rule Decision**.
 _Avoid_: Remaining rule, undecided rule
 
+**Rule Filter**:
+A language category or tool domain that decides which **Pending Rule**s enter the review deck.
+_Avoid_: Category, tool, tag
+
 ## Relationships
 
 - A **Pending Rule** receives exactly one **Rule Decision** during review
 - A **Rule Decision** is one of **Off**, **Info**, **Warn**, or **Error**
+- A **Pending Rule** appears in the review deck when one of its **Rule Filter**s is selected
 
 ## Example dialogue
 

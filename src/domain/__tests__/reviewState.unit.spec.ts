@@ -13,6 +13,7 @@ const rules: BiomeRule[] = Array.from({ length: 5 }, (_, index) => ({
   name: `rule${index}`,
   title: `Rule ${index}`,
   summary: 'Example.',
+  domains: [],
   url: `https://biomejs.dev/linter/rules/rule-${index}`,
 }))
 

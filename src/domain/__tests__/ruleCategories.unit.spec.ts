@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { filterRulesByCategories, getRuleCategories } from '../ruleCategories'
+import { getRuleCategories } from '../ruleCategories'
 import type { BiomeRule } from '../types'
 
 const cssRule: BiomeRule = {
@@ -7,6 +7,7 @@ const cssRule: BiomeRule = {
   name: 'noInvalidDirectionInLinearGradient',
   title: 'No Invalid Direction In Linear Gradient',
   summary: 'Disallow non-standard direction values for linear gradient functions.',
+  domains: [],
   url: 'https://biomejs.dev/linter/rules/no-invalid-direction-in-linear-gradient',
 }
 
@@ -15,6 +16,7 @@ const ariaRule: BiomeRule = {
   name: 'noAccessKey',
   title: 'No Access Key',
   summary: 'Enforce that the accesskey attribute is not used on any HTML element.',
+  domains: [],
   url: 'https://biomejs.dev/linter/rules/no-access-key',
 }
 
@@ -23,6 +25,7 @@ const jsRule: BiomeRule = {
   name: 'noDebugger',
   title: 'No Debugger',
   summary: 'Disallow the debugger statement.',
+  domains: [],
   url: 'https://biomejs.dev/linter/rules/no-debugger',
 }
 
@@ -37,11 +40,5 @@ describe('getRuleCategories', () => {
 
   it('falls back to JavaScript for common lint rules', () => {
     expect(getRuleCategories(jsRule)).toEqual(['JavaScript'])
-  })
-})
-
-describe('filterRulesByCategories', () => {
-  it('returns only rules matching selected categories', () => {
-    expect(filterRulesByCategories([cssRule, ariaRule, jsRule], ['CSS'])).toEqual([cssRule])
   })
 })

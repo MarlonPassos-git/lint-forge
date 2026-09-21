@@ -1,4 +1,5 @@
 import { ruleCategories } from '../domain/ruleCategories'
+import { isRuleDomain } from '../domain/ruleFilters'
 import type { ReviewSnapshot, RuleCategory } from '../domain/types'
 
 const STORE_KEY = 'biome-rule-swipe:v1'
@@ -35,13 +36,17 @@ export function clearReviewSnapshot(storage: Storage) {
   storage.removeItem(STORE_KEY)
 }
 
+/** Normalizes stored data to the current snapshot shape, dropping retired fields. */
 function migrateReviewSnapshot(snapshot: StoredReviewSnapshot): ReviewSnapshot {
   return {
-    ...snapshot,
+    baseConfigText: snapshot.baseConfigText,
     choices: snapshot.choices.map((choice) => ({
       ...choice,
       decision: choice.decision === 'ignored' ? 'off' : choice.decision,
     })),
+    currentIndex: snapshot.currentIndex,
+    filters: snapshot.filters,
+    panels: snapshot.panels,
   }
 }
 
@@ -100,6 +105,19 @@ function assertOptionalFilters(value: unknown): void {
   for (const category of value.selectedCategories) {
     if (!isRuleCategory(category)) {
       throw invalidSnapshot('filters.selectedCategories', category, 'known rule category')
+    }
+  }
+  assertOptionalDomains(value.selectedDomains)
+}
+
+function assertOptionalDomains(value: unknown): void {
+  if (value === undefined) return
+  if (!Array.isArray(value)) {
+    throw invalidSnapshot('filters.selectedDomains', value, 'array of rule domains')
+  }
+  for (const domain of value) {
+    if (!isRuleDomain(domain)) {
+      throw invalidSnapshot('filters.selectedDomains', domain, 'known rule domain')
     }
   }
 }

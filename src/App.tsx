@@ -12,11 +12,13 @@ function App() {
       <ReviewHeader
         canUndo={review.canUndo}
         completedRules={review.completedRules}
-        hasSelectedCategory={review.hasSelectedCategory}
+        hasSelectedFilter={review.hasSelectedFilter}
         progress={review.progress}
         selectedCategories={review.selectedCategories}
+        selectedDomains={review.selectedDomains}
         totalRules={review.filteredRules.length}
-        onCategoryToggle={review.toggleCategory}
+        onFilterGroupSelection={review.setFilterGroupSelection}
+        onFilterToggle={review.toggleFilter}
         onResetRequest={review.openResetDialog}
         onUndo={review.undoLastDecision}
       />

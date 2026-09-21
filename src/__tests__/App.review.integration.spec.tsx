@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { biomeRules } from '../domain/biomeRules'
-import { QuietAudioContext } from '../test/audioFakes'
 
 describe('App review flow', () => {
   beforeEach(() => {
@@ -21,12 +20,11 @@ describe('App review flow', () => {
       'readonly',
     )
     expect(screen.getByText(`0/${biomeRules.length}`)).toBeInTheDocument()
-    expect(screen.getByRole('group', { name: 'Rule categories' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Review setup' })).toBeInTheDocument()
     expect(screen.getByTitle(`${biomeRules[0].name} documentation`)).toBeInTheDocument()
   })
 
   it('saves warn, info, and off decisions into generated config', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -40,7 +38,6 @@ describe('App review flow', () => {
   })
 
   it('marks a pending error decision before persisting it', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Error' }))
@@ -56,7 +53,6 @@ describe('App review flow', () => {
     ['K', 'Warn', 'warn'],
     ['L', 'Error', 'error'],
   ])('maps Shift+%s to the %s decision', async (key, label, decision) => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     fireEvent.keyDown(window, { key, shiftKey: true })
@@ -66,7 +62,6 @@ describe('App review flow', () => {
   })
 
   it('ignores shortcuts during editing, composition, repeat, or extra modifiers', () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     fireEvent.keyDown(screen.getByLabelText('Base file'), { key: 'H', shiftKey: true })
@@ -81,7 +76,6 @@ describe('App review flow', () => {
   })
 
   it('moves active documentation after a decision is saved', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -92,7 +86,6 @@ describe('App review flow', () => {
   })
 
   it('undoes the latest decision and restores its rule and output', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -105,7 +98,6 @@ describe('App review flow', () => {
   })
 
   it('maps Shift+B to Back without running inside the config editor', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -123,7 +115,6 @@ describe('App review flow', () => {
   })
 
   it('disables Back while a decision is pending', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -135,7 +126,6 @@ describe('App review flow', () => {
   })
 
   it('blocks the Back shortcut while another decision is pending', async () => {
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Warn' }))
@@ -151,10 +141,10 @@ describe('App review flow', () => {
 
   it('preserves a filter change while a decision animation finishes', () => {
     vi.useFakeTimers()
-    vi.stubGlobal('AudioContext', QuietAudioContext)
     render(<App />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Warn' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Review setup' }))
+    fireEvent.keyDown(window, { key: 'K', shiftKey: true })
     fireEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
     act(() => vi.advanceTimersByTime(280))
 

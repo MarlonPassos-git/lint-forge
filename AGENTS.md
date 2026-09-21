@@ -9,10 +9,11 @@ Core user flow:
 - Explicitly configured rules in that config are skipped.
 - User reviews remaining rules as a deck.
 - Three rule documentation iframes are kept mounted at a time.
-- Decisions are `ignored`, `warn`, or `error`.
+- Decisions are `off`, `info`, `warn`, or `error`.
 - Generated `biome.json` is shown in the output panel.
 - Progress counts imported explicit rules plus decisions made in the app.
-- Side panel visibility, category filters, imported config, current progress, and decisions persist in `localStorage`.
+- A review setup popover beside the reset button holds language/tool filters.
+- Panel visibility, filters, imported config, current progress, and decisions persist in `localStorage`.
 
 ## Stack
 
@@ -23,6 +24,7 @@ Core user flow:
 - Playwright for E2E tests
 - Biome for linting and formatting
 - `@biomejs/biome` is used as the source for the official configuration schema.
+- `@oddbird/popover-polyfill` covers the Popover API in older browsers.
 - `lucide-react` provides icons.
 
 ## Commands
@@ -47,14 +49,17 @@ pnpm test:e2e
 
 ## Important Files
 
-- `src/App.tsx`: main SPA UI, review flow, category filter, panel visibility, reset confirmation.
-- `src/App.css`: all layout and visual styling.
+- `src/App.tsx`: main SPA UI shell that wires the review hook, header, side panel, and workspace.
+- `src/App.css`: shared layout, control, and workbench styling.
 - `src/domain/biomeRules.ts`: generated rule catalog. Do not edit by hand unless generation is intentionally bypassed.
 - `src/domain/configuration.ts`: Biome config parsing, rule key extraction, output generation, reviewable-rule filtering.
-- `src/domain/ruleCategories.ts`: local category classifier for JavaScript, CSS, JSON, GraphQL, HTML/ARIA, and General.
+- `src/domain/ruleCategories.ts`: local language classifier for JavaScript, CSS, JSON, GraphQL, HTML/ARIA, and General.
+- `src/domain/ruleFilters.ts`: language/tool filter metadata, catalog tool domains, and deck selection rules.
 - `src/domain/reviewState.ts`: progress/window/choice helpers.
+- `src/components/setup/ReviewSetupMenu.tsx`: header-anchored popover with language and tool filters.
+- `src/main.tsx`: conditionally loads the popover polyfill before rendering.
 - `src/storage/localReviewStore.ts`: `localStorage` persistence.
-- `scripts/generate-biome-rules.mjs`: builds `biomeRules.ts` from `node_modules/@biomejs/biome/configuration_schema.json`.
+- `scripts/generate-biome-rules.mjs`: builds `biomeRules.ts` from `node_modules/@biomejs/biome/configuration_schema.json` plus `biome explain` rule domains.
 - `DESIGN.md`: visual identity tokens and Gumroad-inspired neo-brutalist design rules for UI work.
 - `biome.json`: Biome lint/format configuration.
 - `.github/workflows/ci.yml`: GitHub CI with pnpm, Biome, Vitest, build, and Playwright E2E.
@@ -73,26 +78,30 @@ npx -p @google/design.md designmd lint DESIGN.md
 
 Rules are generated from the installed Biome package schema, currently `@biomejs/biome 2.4.16`.
 
+Tool domains (`react`, `next`, `vue`, `playwright`, and so on) are not part of the JSON schema. The generator reads them from the official CLI with `biome explain <ruleName>` and stores them on each rule as `domains`.
+
 Rule docs URLs come from schema descriptions and point to:
 
 ```text
 https://biomejs.dev/linter/rules/{rule-slug}
 ```
 
-Do not crawler-scrape the docs unless schema generation stops being viable. Prefer the official schema because it is stable, versioned with the package, and includes rule descriptions plus URLs.
+Do not crawler-scrape the docs unless schema generation stops being viable. Prefer the official schema and CLI because they are stable, versioned with the package, and include rule descriptions, URLs, and domains.
 
 ## App Behavior
 
 - Imported explicit rules are treated as complete and skipped.
 - `recommended: true` is not expanded into completed rules. Only explicit rules count as configured.
-- Category filters affect the review deck and progress denominator.
-- Already-decided rules do not reappear when category filters change.
+- Language and tool filters live in a review setup popover anchored to the header button beside reset, and affect the review deck and progress denominator.
+- A rule enters the deck when one of its languages or one of its tool domains is selected.
+- Already-decided rules do not reappear when filters change.
+- The setup popover uses the native Popover API: light dismiss and Escape close it, focus moves into the panel on open, and focus returns to the trigger on close. `@oddbird/popover-polyfill` is loaded only when `popover` is missing from `HTMLElement.prototype`.
 - Reset is destructive and must open a confirmation modal with `Cancel` and `Reset everything`.
 - Do not require typing text for reset confirmation.
 - The iframe must render normally. Do not crop, translate, or otherwise mutate the cross-origin Biome docs iframe; prior crop attempts made navigation feel broken.
 - Browser security prevents editing DOM inside the Biome docs iframe because it is cross-origin.
 - Decision buttons float over the bottom of the card to preserve iframe height.
-- `Error` button should not be green. Current semantics: Ignore neutral, Warn amber, Error red.
+- `Error` button should not be green. Current semantics: Off neutral, Info blue-purple, Warn amber, Error red.
 
 ## Persistence
 
@@ -109,8 +118,9 @@ Snapshot shape includes:
 - `panels.inputVisible`
 - `panels.outputVisible`
 - `filters.selectedCategories`
+- `filters.selectedDomains`
 
-Handle corrupt stored JSON by clearing the key and returning `null`.
+Handle corrupt stored JSON by clearing the key and returning `null`. Legacy snapshots without `selectedDomains` fall back to all tool domains selected. Retired `audio` fields from older snapshots are dropped on load.
 
 ## Code Style
 
@@ -179,7 +189,9 @@ Useful checks:
 - There are 3 `iframe.docs-frame` elements during active review.
 - Reset modal appears before destructive reset.
 - Side panel hide/show state survives reload.
-- Category filters survive reload and update progress.
+- The review setup menu opens beside reset, closes on Escape and outside click, and returns focus to its trigger.
+- Language and tool filters survive reload and update progress.
+- Filter chips and All/None controls show hover and focus lift states.
 - No unwanted horizontal overflow.
 
 ## Package Manager

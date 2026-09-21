@@ -40,82 +40,11 @@
   padding: 6px 8px;
 }
 
-.category-filter {
-  border: 0;
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-}
-
-.category-filter label {
-  align-items: center;
-  background: #fffdf7;
-  border: 1px solid #151515;
-  cursor: pointer;
-  display: inline-flex;
-  font:
-    800 11px / 1 "Trebuchet MS",
-    sans-serif;
-  gap: 5px;
-  min-height: 24px;
-  padding: 4px 7px;
-  transition:
-    background-color 180ms ease,
-    box-shadow 240ms var(--motion-snap),
-    transform 240ms var(--motion-snap);
-}
-
-.category-filter label:has(input:focus-visible),
-.category-filter label:hover {
-  box-shadow: 2.25px 2.25px 0 #151515;
-  transform: translate(-3px, -3px);
-}
-
-.category-filter label:active {
-  box-shadow: 0 0 0 #151515;
-  transform: translate(0, 0);
-}
-
-.category-filter input {
-  appearance: none;
-  aspect-ratio: 1;
-  background: #fffdf7;
-  border: 1px solid #151515;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: inline-grid;
-  flex: 0 0 auto;
-  height: 12px;
-  margin: 0;
-  place-items: center;
-}
-
-.category-filter input::after {
-  color: #fffdf7;
-  content: "";
-  font:
-    800 10px / 1 "Trebuchet MS",
-    sans-serif;
-}
-
-.category-filter input:checked {
-  background: #d33b53;
-  border-color: #d33b53;
-}
-
-.category-filter input:checked::after {
-  content: "✓";
-}
-
 .progress-block {
   align-items: center;
   display: grid;
   gap: 10px;
-  grid-template-columns: auto auto minmax(130px, 180px) auto auto;
+  grid-template-columns: auto auto minmax(130px, 180px) auto auto auto;
 }
 
 .progress-block span {

@@ -9,7 +9,7 @@ type ReviewWorkspaceProps = {
   controller: {
     choices: RuleChoice[]
     errorText: string
-    hasSelectedCategory: boolean
+    hasSelectedFilter: boolean
     importText: string
     isInputVisible: boolean
     isOutputVisible: boolean
@@ -38,7 +38,7 @@ export function ReviewWorkspace({ controller }: ReviewWorkspaceProps) {
       />
       <RuleStage
         activeRule={controller.activeRule}
-        hasSelectedCategory={controller.hasSelectedCategory}
+        hasSelectedFilter={controller.hasSelectedFilter}
         outgoingDecision={controller.outgoingDecision}
         rules={controller.visibleRules}
         onChoose={controller.chooseRule}

@@ -1,24 +1,39 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { ruleCategories } from '../../../domain/ruleCategories'
+import { availableRuleDomains } from '../../../domain/ruleFilters'
 import { ReviewHeader } from '../ReviewHeader'
+
+type ReviewHeaderProps = Parameters<typeof ReviewHeader>[0]
+
+function createHeaderProps(overrides: Partial<ReviewHeaderProps> = {}): ReviewHeaderProps {
+  return {
+    canUndo: false,
+    completedRules: 0,
+    hasSelectedFilter: false,
+    progress: 0,
+    selectedCategories: [...ruleCategories],
+    selectedDomains: [...availableRuleDomains],
+    totalRules: 0,
+    onFilterGroupSelection: vi.fn(),
+    onFilterToggle: vi.fn(),
+    onResetRequest: vi.fn(),
+    onUndo: vi.fn(),
+    ...overrides,
+  }
+}
 
 describe('ReviewHeader', () => {
   it('shows progress and asks to reset through a named control', async () => {
-    const onResetRequest = vi.fn()
-    render(
-      <ReviewHeader
-        canUndo={true}
-        completedRules={2}
-        hasSelectedCategory={true}
-        progress={25}
-        selectedCategories={['CSS']}
-        totalRules={8}
-        onCategoryToggle={vi.fn()}
-        onResetRequest={onResetRequest}
-        onUndo={vi.fn()}
-      />,
-    )
+    const props = createHeaderProps({
+      canUndo: true,
+      completedRules: 2,
+      hasSelectedFilter: true,
+      progress: 25,
+      totalRules: 8,
+    })
+    render(<ReviewHeader {...props} />)
 
     expect(screen.getByRole('heading', { name: 'Lint Forge' })).toBeInTheDocument()
     expect(screen.getByText(/not an official Biome tool/i)).toBeInTheDocument()
@@ -35,50 +50,18 @@ describe('ReviewHeader', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Reset review' }))
 
-    expect(onResetRequest).toHaveBeenCalledTimes(1)
+    expect(props.onResetRequest).toHaveBeenCalledTimes(1)
   })
 
-  it('names category controls and reports category changes', async () => {
-    const onCategoryToggle = vi.fn()
-    render(
-      <ReviewHeader
-        canUndo={false}
-        completedRules={0}
-        hasSelectedCategory={true}
-        progress={0}
-        selectedCategories={['JavaScript']}
-        totalRules={10}
-        onCategoryToggle={onCategoryToggle}
-        onResetRequest={vi.fn()}
-        onUndo={vi.fn()}
-      />,
-    )
+  it('reports when no review filter is selected', () => {
+    render(<ReviewHeader {...createHeaderProps()} />)
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'JavaScript' }))
-
-    expect(screen.getByRole('checkbox', { name: 'HTML/ARIA' })).toHaveAttribute(
-      'id',
-      'category-html-aria',
-    )
-    expect(screen.getAllByRole('checkbox')).toHaveLength(6)
-    expect(onCategoryToggle).toHaveBeenCalledWith('JavaScript')
+    expect(screen.getByText('No filters')).toBeInTheDocument()
   })
 
   it('exposes Back globally and disables it when undo is unavailable', async () => {
     const onUndo = vi.fn()
-    const { rerender } = render(
-      <ReviewHeader
-        canUndo={false}
-        completedRules={0}
-        hasSelectedCategory={false}
-        progress={0}
-        selectedCategories={[]}
-        totalRules={0}
-        onCategoryToggle={vi.fn()}
-        onResetRequest={vi.fn()}
-        onUndo={onUndo}
-      />,
-    )
+    const { rerender } = render(<ReviewHeader {...createHeaderProps({ onUndo })} />)
 
     const backButton = screen.getByRole('button', { name: 'Back, undo last decision' })
     expect(backButton).toBeDisabled()
@@ -87,19 +70,26 @@ describe('ReviewHeader', () => {
 
     rerender(
       <ReviewHeader
-        canUndo={true}
-        completedRules={1}
-        hasSelectedCategory={true}
-        progress={100}
-        selectedCategories={['CSS']}
-        totalRules={1}
-        onCategoryToggle={vi.fn()}
-        onResetRequest={vi.fn()}
-        onUndo={onUndo}
+        {...createHeaderProps({
+          canUndo: true,
+          completedRules: 1,
+          hasSelectedFilter: true,
+          onUndo,
+          progress: 100,
+          totalRules: 1,
+        })}
       />,
     )
     await userEvent.click(backButton)
 
     expect(onUndo).toHaveBeenCalledTimes(1)
+  })
+
+  it('exposes the review setup menu trigger beside reset', () => {
+    render(<ReviewHeader {...createHeaderProps()} />)
+
+    const trigger = screen.getByRole('button', { name: 'Review setup' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    expect(trigger).toHaveAttribute('aria-controls', 'review-setup-popover')
   })
 })

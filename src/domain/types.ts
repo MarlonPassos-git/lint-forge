@@ -8,9 +8,28 @@ export type BiomeRule = {
   title: string
   summary: string
   url: string
+  domains: RuleDomain[]
 }
 
 export type RuleCategory = 'JavaScript' | 'CSS' | 'JSON' | 'GraphQL' | 'HTML/ARIA' | 'General'
+
+/** Biome rule domains, mirroring the `linter.domains` keys of the installed schema. */
+export type RuleDomain =
+  | 'drizzle'
+  | 'next'
+  | 'playwright'
+  | 'project'
+  | 'qwik'
+  | 'react'
+  | 'reactNative'
+  | 'solid'
+  | 'tailwind'
+  | 'test'
+  | 'turborepo'
+  | 'types'
+  | 'vue'
+
+export type RuleFilter = RuleCategory | RuleDomain
 
 export type RuleChoice = {
   ruleKey: string
@@ -35,5 +54,6 @@ export type ReviewSnapshot = {
   }
   filters?: {
     selectedCategories: RuleCategory[]
+    selectedDomains?: RuleDomain[]
   }
 }

@@ -18,14 +18,6 @@ export function getRuleCategories(rule: BiomeRule): RuleCategory[] {
   return ['JavaScript']
 }
 
-export function filterRulesByCategories(rules: BiomeRule[], selectedCategories: RuleCategory[]) {
-  if (selectedCategories.length === 0) return []
-  const selectedCategorySet = new Set(selectedCategories)
-  return rules.filter((rule) =>
-    getRuleCategories(rule).some((category) => selectedCategorySet.has(category)),
-  )
-}
-
 function isCssRule(rule: BiomeRule) {
   return hasToken(rule, [
     'css',

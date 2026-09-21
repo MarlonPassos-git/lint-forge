@@ -40,6 +40,7 @@ const snapshot: ReviewSnapshot = {
   },
   filters: {
     selectedCategories: ['CSS', 'JSON'],
+    selectedDomains: ['react', 'vue'],
   },
 }
 
@@ -115,12 +116,38 @@ describe('loadReviewSnapshot', () => {
       { baseConfigText: '{}', choices: [], currentIndex: 0, filters: { selectedCategories: {} } },
     ],
     ['invalid categories', { ...snapshot, filters: { selectedCategories: ['Unknown'] } }],
+    [
+      'non-array domains',
+      {
+        baseConfigText: '{}',
+        choices: [],
+        currentIndex: 0,
+        filters: { selectedCategories: ['CSS'], selectedDomains: {} },
+      },
+    ],
+    [
+      'invalid domains',
+      {
+        ...snapshot,
+        filters: { selectedCategories: ['CSS'], selectedDomains: ['reactjs'] },
+      },
+    ],
   ])('removes %s snapshots', (_label, invalidSnapshot) => {
     const storage = new MemoryReviewStorage()
     storage.setItem('biome-rule-swipe:v1', JSON.stringify(invalidSnapshot))
 
     expect(loadReviewSnapshot(storage)).toBeNull()
     expect(storage.length).toBe(0)
+  })
+
+  it('ignores retired audio fields from older snapshots', () => {
+    const storage = new MemoryReviewStorage()
+    storage.setItem(
+      'biome-rule-swipe:v1',
+      JSON.stringify({ ...snapshot, audio: { enabled: false, pack: 'zen' } }),
+    )
+
+    expect(loadReviewSnapshot(storage)).toEqual(snapshot)
   })
 
   it('removes corrupted snapshots', () => {
