@@ -35,8 +35,12 @@ describe('ReviewHeader', () => {
     })
     render(<ReviewHeader {...props} />)
 
-    expect(screen.getByRole('heading', { name: 'Lint Forge' })).toBeInTheDocument()
-    expect(screen.getByText(/not an official Biome tool/i)).toBeInTheDocument()
+    const heading = screen.getByRole('heading', { name: 'Lint Forge' })
+    expect(heading).toBeInTheDocument()
+    expect(heading.querySelector('img')).toHaveAttribute('alt', '')
+    expect(heading.querySelector('img')).toHaveAttribute('src', '/favicon.svg')
+    expect(screen.queryByText(/not an official Biome tool/i)).not.toBeInTheDocument()
+    expect(screen.getAllByText('Lint Forge')).toHaveLength(1)
     expect(screen.getByText('25%')).toBeInTheDocument()
     expect(screen.getByText('2/8')).toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: 'Review progress' })).toHaveAttribute(

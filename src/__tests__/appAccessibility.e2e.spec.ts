@@ -90,16 +90,18 @@ test('uses a named semantic progress indicator', async ({ page }) => {
   await expect(progress).toHaveAttribute('value', '0')
 })
 
-test('keeps eyebrow text above WCAG AA contrast', async ({ page }) => {
+test('keeps the app title above WCAG AA contrast', async ({ page }) => {
   await page.goto('/')
 
-  const colors = await page.locator('.eyebrow').evaluate((eyebrow) => {
-    const style = getComputedStyle(eyebrow)
-    return {
-      background: getComputedStyle(document.documentElement).backgroundColor,
-      text: style.color,
-    }
-  })
+  const colors = await page
+    .getByRole('heading', { name: 'Lint Forge', exact: true })
+    .evaluate((heading) => {
+      const style = getComputedStyle(heading)
+      return {
+        background: getComputedStyle(document.documentElement).backgroundColor,
+        text: style.color,
+      }
+    })
 
   expect(getContrastRatio(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5)
 })
