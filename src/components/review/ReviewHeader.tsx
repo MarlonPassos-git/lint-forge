@@ -19,11 +19,10 @@ export const ReviewHeader = memo(function ReviewHeader(props: ReviewHeaderProps)
   return (
     <header className="review-header">
       <div>
-        <p className="eyebrow">Lint Forge</p>
-        <h1>Lint Forge</h1>
-        <p className="project-note">
-          For Biome configs. Independent project, not an official Biome tool.
-        </p>
+        <h1>
+          <img src="/favicon.svg" alt="" width="36" height="36" />
+          Lint Forge
+        </h1>
       </div>
       <ProgressActions {...props} />
     </header>

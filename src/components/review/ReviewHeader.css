@@ -8,36 +8,16 @@
   width: 100%;
 }
 
-.eyebrow {
-  color: #c53149;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0;
-  margin: 0 0 2px;
-  text-transform: uppercase;
-}
-
 .review-header h1 {
+  align-items: center;
+  display: flex;
+  gap: 10px;
   color: #151515;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 34px;
   line-height: 1;
   margin: 0;
   max-width: 680px;
-}
-
-.project-note {
-  background: #fffdf7;
-  border: 1px solid #151515;
-  box-shadow: 2px 2px 0 #151515;
-  color: #4c463d;
-  display: inline-block;
-  font:
-    800 11px / 1.2 "Trebuchet MS",
-    sans-serif;
-  margin: 8px 0 0;
-  max-width: 360px;
-  padding: 6px 8px;
 }
 
 .progress-block {
