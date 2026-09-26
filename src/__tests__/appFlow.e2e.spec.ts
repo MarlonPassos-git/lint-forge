@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('reviews a rule and shows generated config output', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   await expect(page.getByRole('heading', { name: 'Lint Forge' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Warn', exact: true })).toBeVisible()
@@ -15,7 +15,7 @@ test('reviews a rule and shows generated config output', async ({ page }) => {
 })
 
 test('reveals a shortcut hint and reviews a rule from the keyboard', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const warnButton = page.getByRole('button', { name: 'Warn', exact: true })
   const shortcutHint = warnButton.locator('kbd')
@@ -44,7 +44,7 @@ test('reveals a shortcut hint and reviews a rule from the keyboard', async ({ pa
 })
 
 test('keeps language and tool filters after reload', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   await page.getByRole('button', { name: 'Review setup' }).click()
   await page.getByRole('checkbox', { name: 'JavaScript', exact: true }).click()
@@ -58,7 +58,7 @@ test('keeps language and tool filters after reload', async ({ page }) => {
 })
 
 test('requires confirmation before clearing review state', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   await page.getByRole('button', { name: 'Review setup' }).click()
   await page.getByRole('checkbox', { name: 'JavaScript', exact: true }).click()

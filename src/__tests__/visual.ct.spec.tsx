@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/experimental-ct-react'
-import App from '../App'
+import { ToolHome } from '../components/home/ToolHome'
 import { ReviewWorkspace } from '../components/layout/ReviewWorkspace'
 import { ResetDialog } from '../components/reset/ResetDialog'
 import { FinishedStage, NoFiltersStage } from '../components/rules/EmptyStages'
 import type { BiomeRule } from '../domain/types'
+import App from '../ReviewApp'
 
 const stableRule: BiomeRule = {
   group: 'style',
@@ -13,6 +14,11 @@ const stableRule: BiomeRule = {
   title: 'Use Const',
   url: 'about:blank',
 }
+
+test('matches the tool directory visual baseline', async ({ mount }) => {
+  const component = await mount(<ToolHome />)
+  await expect(component).toHaveScreenshot('tool-home.png', { animations: 'disabled' })
+})
 
 test('matches app workbench visual baseline', async ({ mount }) => {
   const component = await mount(<App />)

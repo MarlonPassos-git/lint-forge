@@ -20,7 +20,8 @@ async function getReviewLayoutMetrics(page: Page): Promise<ReviewLayoutMetrics> 
 }
 
 test('keeps active review layout within documented resource bounds', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
+  await expect(page.locator('iframe.docs-frame')).toHaveCount(3)
 
   const metrics = await getReviewLayoutMetrics(page)
   expect(metrics.iframeCount).toBe(3)
@@ -29,7 +30,7 @@ test('keeps active review layout within documented resource bounds', async ({ pa
 })
 
 test('keeps panel toggles usable without horizontal overflow', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   await page.getByRole('button', { name: 'Hide base file' }).click()
   await page.getByRole('button', { name: 'Hide output' }).click()
@@ -42,7 +43,7 @@ test('keeps panel toggles usable without horizontal overflow', async ({ page }) 
 
 test('keeps mobile review layout free of horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 320 })
-  await page.goto('/')
+  await page.goto('/biome')
 
   await expect(page.getByRole('heading', { name: 'Lint Forge' })).toBeVisible()
   const errorButton = page.getByRole('button', { name: 'Error', exact: true })
@@ -53,7 +54,7 @@ test('keeps mobile review layout free of horizontal overflow', async ({ page }) 
 
 test('keeps every desktop decision control inside the viewport', async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 })
-  await page.goto('/')
+  await page.goto('/biome')
 
   for (const decision of ['Off', 'Info', 'Warn', 'Error']) {
     await expectControlInsideViewport(
@@ -67,7 +68,7 @@ test('keeps every desktop decision control inside the viewport', async ({ page }
 test('keeps the setup menu beside reset at narrow widths', async ({ page }) => {
   for (const width of [640, 320]) {
     await page.setViewportSize({ height: 900, width })
-    await page.goto('/')
+    await page.goto('/biome')
 
     const resetButton = page.getByRole('button', { name: 'Reset review' })
     const setupTrigger = page.getByRole('button', { name: 'Review setup' })
