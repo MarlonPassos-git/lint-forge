@@ -1,13 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" fill="none" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#f6eee3"/>
-  <rect x="54" y="54" width="1092" height="522" fill="#fff8ec" stroke="#111" stroke-width="8"/>
-  <rect x="82" y="82" width="220" height="88" fill="#ffde59" stroke="#111" stroke-width="6"/>
-  <rect x="326" y="82" width="792" height="88" fill="#ff90e8" stroke="#111" stroke-width="6"/>
-  <rect x="82" y="212" width="300" height="280" fill="#fff" stroke="#111" stroke-width="6"/>
-  <rect x="416" y="212" width="702" height="280" fill="#fff" stroke="#111" stroke-width="6"/>
-  <text x="124" y="356" fill="#111" font-family="Arial Black, Arial, sans-serif" font-size="76" font-weight="900">Lint</text>
-  <text x="124" y="438" fill="#111" font-family="Arial Black, Arial, sans-serif" font-size="76" font-weight="900">Deck</text>
-  <text x="458" y="318" fill="#111" font-family="Arial Black, Arial, sans-serif" font-size="58" font-weight="900">Biome Rule Review</text>
-  <text x="458" y="398" fill="#111" font-family="Arial, sans-serif" font-size="34" font-weight="700">Import biome.json. Choose severities.</text>
-  <text x="458" y="448" fill="#111" font-family="Arial, sans-serif" font-size="34" font-weight="700">Export a custom linter config.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Lint Forge — forge your lint rules</title>
+  <rect width="1200" height="630" fill="#f4efe3"/>
+  <path fill="#151515" d="M58 58h1096v526H58z"/>
+  <path fill="#fffdf7" stroke="#151515" stroke-width="4" d="M46 46h1096v526H46z"/>
+  <g transform="translate(94 146) scale(4.5)">
+
+<path fill="#151515" fill-rule="evenodd" d="M7 30h13v-5h36v11H44c-6 0-8 5-8 10v3h10v8H18v-8h9v-3c0-6-6-8-11-10z M24 28h28v2H24z"/>
+<path fill="none" stroke="#238269" stroke-width="6" stroke-linecap="square" d="m27 13 7 7L47 7"/>
+  </g>
+  <text x="436" y="193" fill="#d33b53" font-family="Trebuchet MS, sans-serif" font-size="20" font-weight="800">YOUR RULES. YOUR CONFIG.</text>
+  <text x="430" y="288" fill="#151515" font-family="Georgia, serif" font-size="92" font-weight="700">Lint Forge</text>
+  <text x="436" y="355" fill="#4c463d" font-family="Trebuchet MS, sans-serif" font-size="28">Review lint rules. Shape your config.</text>
+  <path stroke="#151515" stroke-width="2" d="M436 393h640"/>
+  <text x="436" y="438" fill="#151515" font-family="Trebuchet MS, sans-serif" font-size="23" font-weight="700">Start with Biome.</text>
+  <text x="94" y="529" fill="#4c463d" font-family="monospace" font-size="18">lint-forge.marlonpassos.com.br</text>
 </svg>

@@ -6,7 +6,7 @@ describe('site SEO metadata', () => {
   it('publishes discoverable page metadata in the app shell', () => {
     const html = readFileSync(join(process.cwd(), 'index.html'), 'utf8')
 
-    expect(html).toContain('Lint Forge - Biome Rule Review and Config Builder')
+    expect(html).toContain('Lint Forge - Linter Config Builder')
     expect(html).toContain('name="description"')
     expect(html).toContain('rel="canonical"')
     expect(html).toContain('property="og:image"')
@@ -24,7 +24,7 @@ describe('site SEO metadata', () => {
       '<loc>https://lint-forge.marlonpassos.com.br/</loc>',
     )
     const agentGuidance = readFileSync(join(publicPath, 'llms.txt'), 'utf8')
-    expect(agentGuidance).toContain('Desktop Biome rule review app')
+    expect(agentGuidance).toContain('Biome, ESLint and Ruff')
     expect(agentGuidance).toContain('[Live app](https://lint-forge.marlonpassos.com.br/)')
   })
 })

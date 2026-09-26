@@ -89,6 +89,22 @@ button:disabled {
   color: #151515;
 }
 
+.enable-button {
+  background: #23a094;
+  color: #151515;
+}
+.rule-meta {
+  position: relative;
+  padding-right: 94px;
+}
+.external-docs {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #151515;
+  font-size: 11px;
+}
+
 .warn-button {
   background: #f4c542;
 }

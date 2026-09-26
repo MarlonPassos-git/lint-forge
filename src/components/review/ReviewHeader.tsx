@@ -1,7 +1,9 @@
 import { RotateCcw, Undo2 } from 'lucide-react'
 import { memo } from 'react'
 import { undoShortcut } from '../../domain/reviewShortcuts'
+import { NavigationLink } from '../navigation/NavigationLink'
 import { ReviewSetupMenu } from '../setup/ReviewSetupMenu'
+import { useReviewTool } from './ReviewToolContext'
 
 type ReviewSetupMenuProps = Parameters<typeof ReviewSetupMenu>[0]
 
@@ -16,14 +18,19 @@ type ReviewHeaderProps = ReviewSetupMenuProps & {
 }
 
 export const ReviewHeader = memo(function ReviewHeader(props: ReviewHeaderProps) {
+  const tool = useReviewTool()
   return (
     <header className="review-header">
       <div>
-        <p className="eyebrow">Lint Forge</p>
-        <h1>Lint Forge</h1>
-        <p className="project-note">
-          For Biome configs. Independent project, not an official Biome tool.
-        </p>
+        <h1>
+          <img src="/favicon.svg" alt="" width="36" height="36" />
+          Lint Forge
+        </h1>
+        <nav className="tool-navigation" aria-label="Tool navigation">
+          <NavigationLink href="/">All tools</NavigationLink>
+          <span>{tool.name}</span>
+          <small>v{tool.version}</small>
+        </nav>
       </div>
       <ProgressActions {...props} />
     </header>

@@ -9,25 +9,22 @@ export type BiomeRule = {
   summary: string
   url: string
   domains: RuleDomain[]
+  categories?: RuleCategory[]
+  requiresTypeChecking?: boolean
 }
 
-export type RuleCategory = 'JavaScript' | 'CSS' | 'JSON' | 'GraphQL' | 'HTML/ARIA' | 'General'
+export type RuleCategory =
+  | 'JavaScript'
+  | 'TypeScript'
+  | 'Python'
+  | 'CSS'
+  | 'JSON'
+  | 'GraphQL'
+  | 'HTML/ARIA'
+  | 'General'
 
-/** Biome rule domains, mirroring the `linter.domains` keys of the installed schema. */
-export type RuleDomain =
-  | 'drizzle'
-  | 'next'
-  | 'playwright'
-  | 'project'
-  | 'qwik'
-  | 'react'
-  | 'reactNative'
-  | 'solid'
-  | 'tailwind'
-  | 'test'
-  | 'turborepo'
-  | 'types'
-  | 'vue'
+/** Domain identifiers come from each tool's generated catalog. */
+export type RuleDomain = string
 
 export type RuleFilter = RuleCategory | RuleDomain
 

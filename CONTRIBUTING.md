@@ -62,15 +62,25 @@ pnpm build
 pnpm test:e2e
 ```
 
-## Biome Rule Catalog
+## Rule Catalogs
 
-The rule catalog is generated from the installed `@biomejs/biome` schema.
+Catalogs are committed generated files. Normal builds and CI do not need Ruff or network access to regenerate them. Biome reads its installed schema and CLI; ESLint reads metadata from the installed core, TypeScript and React Hooks packages; Ruff reads the official CLI's JSON output. Ruff generation requires [uv](https://docs.astral.sh/uv/) and uses a version pinned in its generator.
 
 ```powershell
-node scripts/generate-biome-rules.mjs
+pnpm catalog:biome
+pnpm catalog:eslint
+pnpm catalog:ruff
+# Or regenerate all three:
+pnpm catalog:all
 ```
 
-Run the generator after changing the Biome package version, then review the generated `src/domain/biomeRules.ts` diff.
+Run the matching generator after changing a source package or Ruff version, then review the corresponding `src/domain/*Rules.ts` diff. Deprecated ESLint and preview/deprecated/removed Ruff rules are excluded.
+
+Tool adapters in `src/domain/tools` own parsing, explicit-rule extraction, generation, filenames and filters. The shared `ReviewApp` owns the workbench; `App` owns `/`, `/biome`, `/eslint` and `/ruff`. Each tool is loaded on demand. Storage keys are independent; Biome retains `biome-rule-swipe:v1` for existing users.
+
+`pnpm build` creates real HTML entrypoints for every tool route through `scripts/build-tool-pages.mjs`, so deep links and refresh work on GitHub Pages. Keep Vite's root-relative asset base for the custom domain. The existing PageSpeed check targets the home by default; use `PAGESPEED_URL` to check a tool route.
+
+Configuration references: [ESLint flat config](https://eslint.org/docs/latest/use/configure/configuration-files), [ESLint severities](https://eslint.org/docs/latest/use/configure/rules), [Ruff selection precedence](https://docs.astral.sh/ruff/linter/).
 
 ## Pull Requests
 

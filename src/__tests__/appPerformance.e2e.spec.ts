@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('reveals Biome documents after the largest app paint', async ({ page }) => {
   await page.addInitScript(observeLargestPaint)
-  await page.goto('/')
+  await page.goto('/biome')
   await expect(page.locator('iframe.docs-frame').first()).toHaveAttribute('src', /biomejs\.dev/)
   await page.waitForFunction(() => {
     const browserWindow = window as typeof window & { largestPaintTime?: number }

@@ -12,7 +12,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "pnpm type-check && vite build",
+    "build": "pnpm type-check && vite build && node scripts/build-tool-pages.mjs",
+    "catalog:biome": "node scripts/generate-biome-rules.mjs",
+    "catalog:eslint": "node scripts/generate-eslint-rules.mjs",
+    "catalog:ruff": "node scripts/generate-ruff-rules.mjs",
+    "catalog:all": "pnpm catalog:biome && pnpm catalog:eslint && pnpm catalog:ruff",
     "type-check": "tsc -b",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -26,9 +30,11 @@
   },
   "dependencies": {
     "@oddbird/popover-polyfill": "^0.7.2",
+    "acorn": "^8.18.0",
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "smol-toml": "^1.8.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
@@ -40,7 +46,11 @@
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.9.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^29.1.1",
     "typescript": "~6.0.2",
     "vite": "8.0.16",

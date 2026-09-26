@@ -7,6 +7,7 @@ import { PanelVisibilitySlot } from './PanelVisibilitySlot'
 
 type ReviewWorkspaceProps = {
   controller: {
+    filename?: string
     choices: RuleChoice[]
     errorText: string
     hasSelectedFilter: boolean
@@ -77,11 +78,12 @@ function OutputSlot({ controller, onHide, onShow }: PanelSlotProps) {
   return (
     <PanelVisibilitySlot
       isVisible={controller.isOutputVisible}
-      revealLabel="Show biome.json"
+      revealLabel={`Show ${controller.filename ?? 'biome.json'}`}
       side="output"
       onShow={onShow}
     >
       <OutputPanel
+        filename={controller.filename}
         choices={controller.choices}
         outputText={controller.outputText}
         onHide={onHide}

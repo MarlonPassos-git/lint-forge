@@ -1,11 +1,11 @@
 # Rule Review
 
-Lint Forge helps developers review unconfigured Biome rules and assign an explicit decision to each one.
+Lint Forge helps developers review unconfigured Biome, ESLint and Ruff rules and assign an explicit decision to each one. Each tool has its own route, catalog, filters and saved progress.
 
 ## Language
 
 **Rule Decision**:
-An explicit severity or disabled state assigned to one Biome rule during review.
+An explicit severity or enabled/disabled state assigned to one rule during review.
 _Avoid_: Choice, value, action
 
 **Off**:
@@ -24,7 +24,7 @@ _Avoid_: Warning
 A **Rule Decision** that reports a rule violation as an error.
 
 **Pending Rule**:
-A Biome rule without an imported explicit configuration or saved **Rule Decision**.
+A rule without an imported explicit configuration or saved **Rule Decision**.
 _Avoid_: Remaining rule, undecided rule
 
 **Rule Filter**:
@@ -34,7 +34,7 @@ _Avoid_: Category, tool, tag
 ## Relationships
 
 - A **Pending Rule** receives exactly one **Rule Decision** during review
-- A **Rule Decision** is one of **Off**, **Info**, **Warn**, or **Error**
+- Biome decisions are **Off**, **Info**, **Warn**, or **Error**; ESLint omits **Info**; Ruff uses **Enable** or **Disable**, because it has no per-rule severity.
 - A **Pending Rule** appears in the review deck when one of its **Rule Filter**s is selected
 
 ## Example dialogue

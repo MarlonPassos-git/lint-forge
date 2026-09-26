@@ -10,6 +10,7 @@ export const ruleCategories = [
 ] satisfies RuleCategory[]
 
 export function getRuleCategories(rule: BiomeRule): RuleCategory[] {
+  if (rule.categories) return rule.categories
   if (rule.group === 'a11y') return ['HTML/ARIA']
   if (hasToken(rule, ['graphql'])) return ['GraphQL']
   if (hasToken(rule, ['json'])) return ['JSON']

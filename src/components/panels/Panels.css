@@ -12,6 +12,12 @@
     transform 360ms var(--motion-snap);
 }
 
+.import-hint {
+  color: #4c463d;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
 .output-panel {
   transform-origin: center right;
 }

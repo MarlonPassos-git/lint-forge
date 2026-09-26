@@ -1,9 +1,9 @@
 import { expect, type Page, test } from '@playwright/test'
 
 test('keeps only the active docs iframe in the keyboard tab order', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
-  const focusedNames = await collectKeyboardControlNames(page, 10)
+  const focusedNames = await collectKeyboardControlNames(page, 14)
 
   expect(focusedNames).toContain('Reset review')
   expect(focusedNames).toContain('Base file')
@@ -14,7 +14,7 @@ test('keeps only the active docs iframe in the keyboard tab order', async ({ pag
 test('opens the review setup menu from the keyboard and closes it with Escape', async ({
   page,
 }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const trigger = page.getByRole('button', { name: 'Review setup' })
   const javascriptFilter = page.getByRole('checkbox', { name: 'JavaScript' })
@@ -45,7 +45,7 @@ test('opens the review setup menu from the keyboard and closes it with Escape', 
 })
 
 test('offers a focused skip link before active documentation', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const startButton = page.getByRole('button', { name: 'Start from this config' })
   const skipLink = page.getByRole('link', { name: 'Skip documentation' })
@@ -63,7 +63,7 @@ test('offers a focused skip link before active documentation', async ({ page }) 
 })
 
 test('exposes only the active rule card and documentation frame', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const frames = page.locator('iframe.docs-frame')
   const cards = page.getByRole('article', { includeHidden: true })
@@ -83,29 +83,31 @@ test('exposes only the active rule card and documentation frame', async ({ page 
 })
 
 test('uses a named semantic progress indicator', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const progress = page.getByRole('progressbar', { name: 'Review progress' })
   await expect(progress).toHaveAttribute('max', '100')
   await expect(progress).toHaveAttribute('value', '0')
 })
 
-test('keeps eyebrow text above WCAG AA contrast', async ({ page }) => {
-  await page.goto('/')
+test('keeps the app title above WCAG AA contrast', async ({ page }) => {
+  await page.goto('/biome')
 
-  const colors = await page.locator('.eyebrow').evaluate((eyebrow) => {
-    const style = getComputedStyle(eyebrow)
-    return {
-      background: getComputedStyle(document.documentElement).backgroundColor,
-      text: style.color,
-    }
-  })
+  const colors = await page
+    .getByRole('heading', { name: 'Lint Forge', exact: true })
+    .evaluate((heading) => {
+      const style = getComputedStyle(heading)
+      return {
+        background: getComputedStyle(document.documentElement).backgroundColor,
+        text: style.color,
+      }
+    })
 
   expect(getContrastRatio(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5)
 })
 
 test('opens reset confirmation as a named modal dialog', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const resetButton = page.getByRole('button', { name: 'Reset review' })
   await resetButton.focus()
@@ -118,7 +120,7 @@ test('opens reset confirmation as a named modal dialog', async ({ page }) => {
 })
 
 test('cancels reset with Escape and restores focus to its trigger', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/biome')
 
   const resetButton = page.getByRole('button', { name: 'Reset review' })
   await resetButton.click()
@@ -137,7 +139,7 @@ test('cancels reset from the form and restores focus to its trigger', async ({ p
       browserConsoleProblems.push(message.text())
     }
   })
-  await page.goto('/')
+  await page.goto('/biome')
 
   const resetButton = page.getByRole('button', { name: 'Reset review' })
   await resetButton.click()

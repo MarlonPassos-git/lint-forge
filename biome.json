@@ -13,6 +13,8 @@
       "!!node_modules",
       "!!playwright-report",
       "!!src/domain/biomeRules.ts",
+      "!!src/domain/eslintRules.ts",
+      "!!src/domain/ruffRules.ts",
       "!!test-results"
     ]
   },

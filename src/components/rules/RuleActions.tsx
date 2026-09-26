@@ -1,7 +1,8 @@
 import { AlertTriangle, Info, ShieldCheck, X } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { reviewShortcuts } from '../../domain/reviewShortcuts'
 import type { RuleChoice } from '../../domain/types'
+import { useReviewTool } from '../review/ReviewToolContext'
 
 type RuleActionsProps = {
   outgoingDecision: RuleChoice['decision'] | null
@@ -9,6 +10,13 @@ type RuleActionsProps = {
 }
 
 export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
+  const tool = useReviewTool()
+  const icons = {
+    off: <X size={20} />,
+    info: <Info size={20} />,
+    warn: <AlertTriangle size={20} />,
+    error: <ShieldCheck size={20} />,
+  }
   return (
     <>
       <fieldset
@@ -16,54 +24,30 @@ export function RuleActions({ outgoingDecision, onChoose }: RuleActionsProps) {
         id="rule-decisions"
         aria-label="Rule decisions"
         tabIndex={-1}
+        style={{ '--decision-count': tool.decisions.length } as CSSProperties}
       >
-        <DecisionButton
-          className="off-button"
-          decision="off"
-          icon={<X size={20} />}
-          label="Off"
-          outgoingDecision={outgoingDecision}
-          shortcut={reviewShortcuts.off}
-          onChoose={onChoose}
-        />
-        <DecisionButton
-          className="info-button"
-          decision="info"
-          icon={<Info size={20} />}
-          label="Info"
-          outgoingDecision={outgoingDecision}
-          shortcut={reviewShortcuts.info}
-          onChoose={onChoose}
-        />
-        <DecisionButton
-          className="warn-button"
-          decision="warn"
-          icon={<AlertTriangle size={20} />}
-          label="Warn"
-          outgoingDecision={outgoingDecision}
-          shortcut={reviewShortcuts.warn}
-          onChoose={onChoose}
-        />
-        <DecisionButton
-          className="error-button"
-          decision="error"
-          icon={<ShieldCheck size={20} />}
-          label="Error"
-          outgoingDecision={outgoingDecision}
-          shortcut={reviewShortcuts.error}
-          onChoose={onChoose}
-        />
+        {tool.decisions.map((decision) => (
+          <DecisionButton
+            key={decision}
+            className={
+              tool.id === 'ruff' && decision === 'error' ? 'enable-button' : `${decision}-button`
+            }
+            decision={decision}
+            icon={icons[decision]}
+            label={tool.decisionLabels?.[decision] ?? decision[0].toUpperCase() + decision.slice(1)}
+            outgoingDecision={outgoingDecision}
+            shortcut={reviewShortcuts[decision]}
+            onChoose={onChoose}
+          />
+        ))}
       </fieldset>
       <output aria-atomic="true" aria-live="polite" className="decision-status">
-        {getDecisionStatus(outgoingDecision)}
+        {outgoingDecision
+          ? `${tool.decisionLabels?.[outgoingDecision] ?? outgoingDecision} decision selected`
+          : ''}
       </output>
     </>
   )
-}
-
-function getDecisionStatus(decision: RuleChoice['decision'] | null) {
-  if (!decision) return ''
-  return `${decision} decision selected`
 }
 
 type DecisionButtonProps = {

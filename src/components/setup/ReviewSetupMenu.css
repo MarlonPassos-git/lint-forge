@@ -126,6 +126,15 @@
   white-space: nowrap;
 }
 
+.review-setup-popover[data-tool="ruff"] .filter-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.review-setup-popover[data-tool="ruff"] .filter-option span {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
 .filter-option:has(input:focus-visible),
 .filter-option:hover {
   box-shadow: 2.25px 2.25px 0 #151515;

@@ -14,26 +14,31 @@ type StoredRuleChoice = Omit<ReviewSnapshot['choices'][number], 'decision'> & {
 
 const storedDecisionValues = ['error', 'info', 'warn', 'off', 'ignored'] as const
 
-export function loadReviewSnapshot(storage: Storage): ReviewSnapshot | null {
-  const storedValue = storage.getItem(STORE_KEY)
+export function loadReviewSnapshot(
+  storage: Storage,
+  key = STORE_KEY,
+  categories: readonly string[] = ruleCategories,
+  domains?: readonly string[],
+): ReviewSnapshot | null {
+  const storedValue = storage.getItem(key)
   if (!storedValue) return null
 
   try {
     const parsedSnapshot: unknown = JSON.parse(storedValue)
-    assertStoredReviewSnapshot(parsedSnapshot)
+    assertStoredReviewSnapshot(parsedSnapshot, categories, domains)
     return migrateReviewSnapshot(parsedSnapshot)
   } catch {
-    storage.removeItem(STORE_KEY)
+    storage.removeItem(key)
     return null
   }
 }
 
-export function saveReviewSnapshot(storage: Storage, snapshot: ReviewSnapshot) {
-  storage.setItem(STORE_KEY, JSON.stringify(snapshot))
+export function saveReviewSnapshot(storage: Storage, snapshot: ReviewSnapshot, key = STORE_KEY) {
+  storage.setItem(key, JSON.stringify(snapshot))
 }
 
-export function clearReviewSnapshot(storage: Storage) {
-  storage.removeItem(STORE_KEY)
+export function clearReviewSnapshot(storage: Storage, key = STORE_KEY) {
+  storage.removeItem(key)
 }
 
 /** Normalizes stored data to the current snapshot shape, dropping retired fields. */
@@ -50,7 +55,11 @@ function migrateReviewSnapshot(snapshot: StoredReviewSnapshot): ReviewSnapshot {
   }
 }
 
-function assertStoredReviewSnapshot(value: unknown): asserts value is StoredReviewSnapshot {
+function assertStoredReviewSnapshot(
+  value: unknown,
+  categories: readonly string[],
+  domains?: readonly string[],
+): asserts value is StoredReviewSnapshot {
   if (!isRecord(value)) throw invalidSnapshot('root', value, 'JSON object')
   if (typeof value.baseConfigText !== 'string') {
     throw invalidSnapshot('baseConfigText', value.baseConfigText, 'string')
@@ -63,7 +72,7 @@ function assertStoredReviewSnapshot(value: unknown): asserts value is StoredRevi
   }
   assertStoredChoices(value.choices)
   assertOptionalPanels(value.panels)
-  assertOptionalFilters(value.filters)
+  assertOptionalFilters(value.filters, categories, domains)
 }
 
 function assertStoredChoices(values: unknown[]): asserts values is StoredRuleChoice[] {
@@ -92,7 +101,11 @@ function assertOptionalPanels(value: unknown): void {
   }
 }
 
-function assertOptionalFilters(value: unknown): void {
+function assertOptionalFilters(
+  value: unknown,
+  categories: readonly string[],
+  domains?: readonly string[],
+): void {
   if (value === undefined) return
   if (!isRecord(value)) throw invalidSnapshot('filters', value, 'object')
   if (!Array.isArray(value.selectedCategories)) {
@@ -103,20 +116,20 @@ function assertOptionalFilters(value: unknown): void {
     )
   }
   for (const category of value.selectedCategories) {
-    if (!isRuleCategory(category)) {
+    if (!isRuleCategory(category, categories)) {
       throw invalidSnapshot('filters.selectedCategories', category, 'known rule category')
     }
   }
-  assertOptionalDomains(value.selectedDomains)
+  assertOptionalDomains(value.selectedDomains, domains)
 }
 
-function assertOptionalDomains(value: unknown): void {
+function assertOptionalDomains(value: unknown, domains?: readonly string[]): void {
   if (value === undefined) return
   if (!Array.isArray(value)) {
     throw invalidSnapshot('filters.selectedDomains', value, 'array of rule domains')
   }
   for (const domain of value) {
-    if (!isRuleDomain(domain)) {
+    if (domains ? !domains.includes(domain) : !isRuleDomain(domain)) {
       throw invalidSnapshot('filters.selectedDomains', domain, 'known rule domain')
     }
   }
@@ -139,9 +152,9 @@ function isStoredDecision(value: unknown): value is StoredRuleChoice['decision']
   )
 }
 
-function isRuleCategory(value: unknown): value is RuleCategory {
+function isRuleCategory(value: unknown, categories: readonly string[]): value is RuleCategory {
   const category = value as RuleCategory
-  return typeof value === 'string' && ruleCategories.includes(category)
+  return typeof value === 'string' && categories.includes(category)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
