@@ -2,7 +2,20 @@
 
 ## Project
 
-Desktop-only React SPA for reviewing Biome linter rules and producing a custom `biome.json`.
+Desktop-only React SPA for reviewing Biome, ESLint and Ruff rules and producing custom configurations. `/` lists tools; review routes are `/biome`, `/eslint` and `/ruff`.
+
+## Tool adapters
+
+- `src/App.tsx` owns navigation and lazy tool loading; `src/ReviewApp.tsx` owns the shared workbench.
+- `src/domain/tools` owns per-tool parsing, generation, filters and supported decisions.
+- ESLint supports core, TypeScript and React Hooks rules. Parse pasted JavaScript as syntax, never evaluate it. Preserve imports/presets and count only explicit literal rule keys. Generated output is `eslint.config.mjs`.
+- Ruff uses stable rules from its pinned CLI, with Enable/Disable decisions and TOML input/output. Preserve other pyproject sections; prefix selectors do not count as individually reviewed rules.
+- Use `pnpm catalog:biome`, `pnpm catalog:eslint`, `pnpm catalog:ruff`, or `pnpm catalog:all`. Ruff generation requires `uv`; normal builds use committed catalogs.
+- `src/domain/eslintRules.ts` and `src/domain/ruffRules.ts` are generated; do not edit by hand.
+- Storage keys are `biome-rule-swipe:v1`, `lint-forge:eslint:v1`, and `lint-forge:ruff:v1`. Reset only the active tool.
+- Build publishes a static HTML entrypoint for each route for GitHub Pages. Keep root-relative assets for the custom domain.
+
+The following original Biome behavior remains the compatibility baseline for `/biome`.
 
 Core user flow:
 - User can paste an existing Biome config in the base file panel.

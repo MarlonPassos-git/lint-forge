@@ -1,15 +1,18 @@
 # Lint Forge
 
-> Desktop Biome rule review app for generating custom biome.json lint configurations.
+> Desktop rule review app for Biome, ESLint and Ruff configurations.
 
-Lint Forge helps developers import an existing Biome config, skip explicitly configured rules, review the remaining linter rules in a focused deck, and export a generated biome.json.
+Lint Forge helps developers select a linter, import existing settings, review unconfigured rules in a deck, and generate a custom config. Progress is stored separately for each tool in the browser.
 
 ## Links
 
 - [Live app](https://lint-forge.marlonpassos.com.br/)
 - [Source repository](https://github.com/MarlonPassos-git/lint-forge)
 - [Biome documentation](https://biomejs.dev/)
+- [Biome review](https://lint-forge.marlonpassos.com.br/biome)
+- [ESLint review](https://lint-forge.marlonpassos.com.br/eslint)
+- [Ruff review](https://lint-forge.marlonpassos.com.br/ruff)
 
 ## Topics
 
-Biome, lint rules, biome.json, React, Vite, TypeScript, developer tools.
+Biome, ESLint, Ruff, lint rules, biome.json, eslint.config.mjs, ruff.toml, Python, TypeScript, developer tools.

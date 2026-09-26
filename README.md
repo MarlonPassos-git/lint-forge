@@ -13,19 +13,20 @@
   </p>
 </div>
 
-Lint Forge is a Biome rule review app for developers who want a custom `biome.json` without reading every lint rule page manually. Import an existing Biome config, skip rules already configured by your team, review the remaining rules as a deck, and export the generated config.
+Lint Forge helps developers build custom Biome, ESLint and Ruff configurations. Choose a tool from the home, import an existing config, review unconfigured rules as a deck, and copy the generated file. Each tool keeps its own progress.
 
-> Project note: Lint Forge is for Biome configs. It is an independent project, not an official Biome tool.
+> Lint Forge is an independent project, unaffiliated with Biome, ESLint or Ruff.
 
 ## Features
 
 - Review linter rules with a card/deck workflow.
-- Import an existing `biome.json` and skip explicitly configured rules.
-- Choose `Off`, `Info`, `Warn`, or `Error` for each remaining rule.
-- Keep three Biome documentation iframes mounted for faster navigation.
+- Open Biome at `/biome`, ESLint at `/eslint`, or Ruff at `/ruff`.
+- Import `biome.json`, ESLint flat config JavaScript or JSON, and `ruff.toml` or `pyproject.toml`.
+- Choose Biome severities (`Off`, `Info`, `Warn`, `Error`), ESLint severities (`Off`, `Warn`, `Error`), or Ruff `Enable`/`Disable`.
+- Read rule documentation inside the deck or open the official page in another tab.
 - Filter the review deck by language and tool domain, such as React, Next.js, Vue, and Playwright, from the review setup menu.
 - Persist imported config, decisions, filters, progress, and panel visibility in `localStorage`.
-- Generate a final `biome.json` preview as decisions are made.
+- Generate `biome.json`, `eslint.config.mjs`, `ruff.toml` or `pyproject.toml` as decisions are made.
 
 ## Demo
 
@@ -36,10 +37,14 @@ Lint Forge is a Biome rule review app for developers who want a custom `biome.js
 
 Open the public app and use the review flow:
 
-1. Paste an existing `biome.json` in the base file panel.
+1. Choose your linter and paste its configuration in the base file panel, or start with the provided empty config.
 2. Start the review so explicitly configured rules are skipped.
-3. Choose `Off`, `Info`, `Warn`, or `Error` for each remaining rule.
-4. Copy the generated `biome.json` from the output panel.
+3. Select languages and tools in Review setup, then decide each remaining rule.
+4. Copy the generated file from the output panel.
+
+ESLint supports core, TypeScript and React Hooks rules. Install the packages imported by the generated config in your project; type-aware rules also require a TypeScript project configuration. JavaScript imports and presets are preserved without executing them in the browser. Only literal rule keys are counted as configured; dynamic expressions and inherited presets are not expanded. JSON input must describe flat configuration objects rather than legacy `.eslintrc` fields.
+
+Ruff includes stable rules from the pinned version. Exact imported rule codes are skipped; selectors such as `E`, `F` and `ALL` remain in the config without marking every matching rule reviewed. Existing Ruff settings and other `pyproject.toml` sections are retained; TOML formatting and comments are not preserved. Rule families can contain mutually exclusive conventions, so choose rules appropriate to your project.
 
 To run the project locally, follow the [Contributing guide](CONTRIBUTING.md#getting-started).
 
