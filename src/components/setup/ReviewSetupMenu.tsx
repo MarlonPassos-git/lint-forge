@@ -1,12 +1,8 @@
 import { Menu } from 'lucide-react'
 import { type RefObject, useEffect, useRef, useState } from 'react'
-import { ruleCategories } from '../../domain/ruleCategories'
-import {
-  availableRuleDomains,
-  type RuleFilterGroup,
-  ruleDomainLabels,
-} from '../../domain/ruleFilters'
+import type { RuleFilterGroup } from '../../domain/ruleFilters'
 import type { RuleCategory, RuleDomain, RuleFilter } from '../../domain/types'
+import { useReviewTool } from '../review/ReviewToolContext'
 
 type ReviewSetupMenuProps = {
   selectedCategories: RuleCategory[]
@@ -20,6 +16,7 @@ const panelViewportMargin = 8
 const panelWidth = 360
 
 export function ReviewSetupMenu(props: ReviewSetupMenuProps) {
+  const tool = useReviewTool()
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -43,6 +40,7 @@ export function ReviewSetupMenu(props: ReviewSetupMenuProps) {
         ref={panelRef}
         aria-labelledby="review-setup-title"
         className="review-setup-popover"
+        data-tool={tool.id}
         id={setupPanelId}
         popover="auto"
         tabIndex={-1}
@@ -51,7 +49,7 @@ export function ReviewSetupMenu(props: ReviewSetupMenuProps) {
           Review setup
         </h2>
         <FilterGroup
-          filters={ruleCategories}
+          filters={tool.categories}
           heading="Languages"
           getFilterLabel={(filter) => filter}
           isFilterSelected={(filter) => props.selectedCategories.includes(filter as RuleCategory)}
@@ -59,9 +57,9 @@ export function ReviewSetupMenu(props: ReviewSetupMenuProps) {
           onGroupSelection={(isSelected) => props.onFilterGroupSelection('categories', isSelected)}
         />
         <FilterGroup
-          filters={availableRuleDomains}
+          filters={Object.keys(tool.domainLabels)}
           heading="Tools"
-          getFilterLabel={(filter) => ruleDomainLabels[filter as RuleDomain]}
+          getFilterLabel={(filter) => tool.domainLabels[filter]}
           isFilterSelected={(filter) => props.selectedDomains.includes(filter as RuleDomain)}
           onFilterToggle={props.onFilterToggle}
           onGroupSelection={(isSelected) => props.onFilterGroupSelection('domains', isSelected)}
@@ -123,7 +121,8 @@ function useSetupPanelPosition(
 
 function positionSetupPanel(panel: HTMLDivElement, trigger: HTMLButtonElement) {
   const triggerBounds = trigger.getBoundingClientRect()
-  const width = Math.min(panelWidth, window.innerWidth - panelViewportMargin * 2)
+  const preferredWidth = panel.dataset.tool === 'ruff' ? 480 : panelWidth
+  const width = Math.min(preferredWidth, window.innerWidth - panelViewportMargin * 2)
   const top = triggerBounds.bottom + panelViewportMargin
   const left = clamp(
     triggerBounds.right - width,

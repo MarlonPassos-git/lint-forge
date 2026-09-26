@@ -8,6 +8,23 @@
   width: 100%;
 }
 
+.tool-navigation {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+}
+.tool-navigation a {
+  color: #151515;
+}
+.tool-navigation a:focus-visible {
+  outline: 3px solid #d33b53;
+  outline-offset: 5px;
+}
+.tool-navigation span {
+  font-weight: 800;
+}
+
 .review-header h1 {
   align-items: center;
   display: flex;

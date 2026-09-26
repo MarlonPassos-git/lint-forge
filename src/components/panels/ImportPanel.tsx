@@ -1,4 +1,5 @@
 import { EyeOff, FileText } from 'lucide-react'
+import { useReviewTool } from '../review/ReviewToolContext'
 
 type ImportPanelProps = {
   errorText: string
@@ -9,6 +10,7 @@ type ImportPanelProps = {
 }
 
 export function ImportPanel(props: ImportPanelProps) {
+  const tool = useReviewTool()
   return (
     <div className="control-panel">
       <div className="panel-title-row">
@@ -21,11 +23,15 @@ export function ImportPanel(props: ImportPanelProps) {
         <HidePanelButton label="Hide base file" onHide={props.onHide} />
       </div>
       <textarea
+        aria-describedby="import-hint"
         id="biome-config-input"
         value={props.importText}
         onChange={(event) => props.onChange(event.target.value)}
         spellCheck={false}
       />
+      <p id="import-hint" className="import-hint">
+        {tool.importHint}
+      </p>
       {props.errorText ? <ImportError message={props.errorText} /> : null}
       <button type="button" className="primary-button" onClick={props.onStart}>
         Start from this config

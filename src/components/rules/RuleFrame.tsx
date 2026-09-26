@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { BiomeRule, RuleChoice } from '../../domain/types'
 import { useDeferredRuleDocument } from '../../hooks/useDeferredRuleDocument'
+import { useReviewTool } from '../review/ReviewToolContext'
 
 type RuleFrameProps = {
   decision: RuleChoice['decision'] | null
@@ -15,6 +16,7 @@ export const RuleFrame = memo(function RuleFrame({
   rule,
   stackIndex,
 }: RuleFrameProps) {
+  const tool = useReviewTool()
   const headingId = getRuleHeadingId(rule)
   const isHidden = !isActive
   const documentSource = useDeferredRuleDocument(rule.url)
@@ -24,7 +26,9 @@ export const RuleFrame = memo(function RuleFrame({
       aria-hidden={isHidden || undefined}
       aria-labelledby={headingId}
       className={getRuleFrameClassName(isActive, decision, stackIndex)}
-      data-decision-label={decision ? getDecisionLabel(decision) : undefined}
+      data-decision-label={
+        decision ? (tool.decisionLabels?.[decision] ?? decision).toUpperCase() : undefined
+      }
       inert={isHidden || undefined}
     >
       <div className="rule-meta">
@@ -54,6 +58,15 @@ export const RuleFrame = memo(function RuleFrame({
         tabIndex={isActive ? 0 : -1}
         loading="eager"
       />
+      <a
+        className="external-docs"
+        href={rule.url}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Open ${rule.name} documentation in a new tab`}
+      >
+        Open docs ↗
+      </a>
     </article>
   )
 })
@@ -77,8 +90,4 @@ function getRuleFrameClassName(
   ]
     .filter(Boolean)
     .join(' ')
-}
-
-function getDecisionLabel(decision: RuleChoice['decision']) {
-  return decision.toUpperCase()
 }

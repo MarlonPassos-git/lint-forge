@@ -5,7 +5,7 @@ export function NoFiltersStage() {
     <section className="finished-stage">
       <AlertTriangle size={44} aria-hidden="true" />
       <h2>No filters selected.</h2>
-      <p>Select at least one language or tool in the side panel to continue reviewing rules.</p>
+      <p>Select at least one language or tool in Review setup to continue reviewing rules.</p>
     </section>
   )
 }
