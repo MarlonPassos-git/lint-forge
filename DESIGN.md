@@ -319,6 +319,8 @@ Gumroad's pinned `components/ui` kit uses a consistent recipe: `border border-bo
 
 **Text areas and code output:** Monospace, high contrast, square corners. Imported config uses paper surface; generated output uses ink surface with warm code text.
 
+**Scrollbars:** Scroll surfaces set `scrollbar-width: thin` and `scrollbar-color` from the `--scrollbar-*` variables: ink thumb on a warm track, cream thumb on ink for code. Where `scrollbar-color` is unsupported, `index.css` draws a square 10px rail instead, with a one-pixel ink edge, inset thumb, and accent hover and press states.
+
 **Reset modal:** Destructive actions require a modal with Cancel and Reset everything. Do not require typing confirmation text.
 
 ## Do's and Don'ts
