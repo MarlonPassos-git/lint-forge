@@ -26,8 +26,7 @@ test('opens the review setup menu from the keyboard and closes it with Escape', 
   await expect(javascriptFilter).toBeVisible()
 
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Select all Languages' })).toBeFocused()
-  await page.keyboard.press('Tab')
+  await expect(page.getByRole('checkbox', { name: 'Toggle all Languages' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(javascriptFilter).toBeFocused()
   await page.keyboard.press('Space')

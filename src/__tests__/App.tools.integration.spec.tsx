@@ -79,8 +79,8 @@ describe('multi-tool navigation and review', () => {
     ).toContain('sample')
     expect(screen.getByText(`1/${ruffRules.length}`)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Review setup' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Languages' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Tools' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Toggle all Languages' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Toggle all Rule sources' }))
     expect(screen.getByText('No filters selected.')).toBeInTheDocument()
     view.unmount()
     render(<App />)
@@ -92,6 +92,28 @@ describe('multi-tool navigation and review', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset everything' }))
     expect(screen.getByText(`0/${ruffRules.length}`)).toBeInTheDocument()
     expect(window.localStorage.getItem('lint-forge:eslint:v1')).toBe('preserve another tool')
+  })
+
+  it('removes rules from unchecked tools and reports when no rule matches', async () => {
+    window.history.replaceState(null, '', '/ruff')
+    render(<App />)
+    await screen.findByRole('heading', { name: 'Generated ruff.toml' })
+    expect(screen.getByTitle('AIR001 documentation')).toBeVisible()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Review setup' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Airflow' }))
+
+    expect(screen.queryByTitle('AIR001 documentation')).not.toBeInTheDocument()
+    expect(screen.getByTitle('ERA001 documentation')).toBeVisible()
+
+    const sourcesToggle = screen.getByRole('checkbox', { name: 'Toggle all Rule sources' })
+    await userEvent.click(sourcesToggle)
+    await userEvent.click(sourcesToggle)
+
+    expect(screen.queryByTitle('ERA001 documentation')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'No rules match these filters.' }),
+    ).toBeInTheDocument()
   })
 
   it('handles browser history and unknown routes', async () => {

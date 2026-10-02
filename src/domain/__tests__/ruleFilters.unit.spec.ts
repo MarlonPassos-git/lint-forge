@@ -60,10 +60,22 @@ describe('filterRulesBySelection', () => {
     expect(filterRulesBySelection([reactRule, vueRule, jsRule], [], ['react'])).toEqual([reactRule])
   })
 
-  it('includes a rule when its language or its tool domain is selected', () => {
-    expect(filterRulesBySelection([reactRule, vueRule, cssRule], ['CSS'], ['vue'])).toEqual([
+  it('excludes a tool rule when its domain is unchecked, even with its language selected', () => {
+    expect(filterRulesBySelection([reactRule, jsRule], ['JavaScript'], [])).toEqual([jsRule])
+  })
+
+  it('requires a selected language for tool rules when languages are selected', () => {
+    expect(filterRulesBySelection([reactRule, vueRule], ['CSS'], ['react', 'vue'])).toEqual([])
+  })
+
+  it('selects tool rules by domain alone when no language is selected', () => {
+    expect(filterRulesBySelection([reactRule, vueRule, jsRule], [], ['vue'])).toEqual([vueRule])
+  })
+
+  it('includes a tool rule when both its language and domain are selected', () => {
+    expect(filterRulesBySelection([reactRule, vueRule, jsRule], ['JavaScript'], ['vue'])).toEqual([
       vueRule,
-      cssRule,
+      jsRule,
     ])
   })
 })

@@ -4,6 +4,7 @@ import { biomeTool } from '../biome'
 import { eslintTool } from '../eslint'
 import {
   initialToolSnapshot,
+  selectToolDomains,
   selectToolFilterGroup,
   toggleToolFilter,
   toolStorageKey,
@@ -33,10 +34,37 @@ describe('tool-specific review state', () => {
         none.filters?.selectedDomains ?? [],
       ),
     ).toEqual([])
-    const restored = selectToolFilterGroup(none, 'categories', true, tool)
+    const languagesRestored = selectToolFilterGroup(none, 'categories', true, tool)
+    const languageOnlyRules = tool.rules.filter((rule) => rule.domains.length === 0)
     expect(
-      filterRulesBySelection(tool.rules, restored.filters?.selectedCategories ?? [], []),
+      filterRulesBySelection(
+        tool.rules,
+        languagesRestored.filters?.selectedCategories ?? [],
+        languagesRestored.filters?.selectedDomains ?? [],
+      ),
+    ).toHaveLength(languageOnlyRules.length)
+    const fullyRestored = selectToolFilterGroup(languagesRestored, 'domains', true, tool)
+    expect(
+      filterRulesBySelection(
+        tool.rules,
+        fullyRestored.filters?.selectedCategories ?? [],
+        fullyRestored.filters?.selectedDomains ?? [],
+      ),
     ).toHaveLength(tool.rules.length)
+  })
+
+  it('selects and clears a domain subset and resets the index', () => {
+    const initial = { ...initialToolSnapshot(ruffTool), currentIndex: 5 }
+    const cleared = selectToolDomains(initial, ['Airflow', 'FastAPI'], false, ruffTool)
+    expect(cleared.currentIndex).toBe(0)
+    expect(cleared.filters?.selectedDomains).not.toContain('Airflow')
+    expect(cleared.filters?.selectedDomains).not.toContain('FastAPI')
+    expect(cleared.filters?.selectedDomains).toContain('Pyflakes')
+
+    const restored = selectToolDomains(cleared, ['Airflow', 'FastAPI'], true, ruffTool)
+    expect(new Set(restored.filters?.selectedDomains)).toEqual(
+      new Set(Object.keys(ruffTool.domainLabels)),
+    )
   })
 
   it('selects Ruff family filters independently of the Python language', () => {

@@ -36,6 +36,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
@@ -71,6 +72,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
@@ -88,6 +90,7 @@ describe('RuleStage', () => {
     const { rerender } = render(
       <RuleStage
         activeRule={visibleRules[0]}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
@@ -102,6 +105,7 @@ describe('RuleStage', () => {
     rerender(
       <RuleStage
         activeRule={visibleRules[0]}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision="warn"
         rules={visibleRules}
@@ -122,6 +126,7 @@ describe('RuleStage', () => {
     render(
       <RuleStage
         activeRule={visibleRules[0]}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision={null}
         rules={visibleRules}
@@ -138,6 +143,7 @@ describe('RuleStage', () => {
     const { rerender } = render(
       <RuleStage
         activeRule={undefined}
+        hasMatchingRules={false}
         hasSelectedFilter={false}
         outgoingDecision={null}
         rules={[]}
@@ -150,6 +156,7 @@ describe('RuleStage', () => {
     rerender(
       <RuleStage
         activeRule={undefined}
+        hasMatchingRules={true}
         hasSelectedFilter={true}
         outgoingDecision={null}
         rules={[]}
@@ -158,5 +165,20 @@ describe('RuleStage', () => {
     )
 
     expect(screen.getByRole('heading', { name: 'All rules reviewed.' })).toBeInTheDocument()
+
+    rerender(
+      <RuleStage
+        activeRule={undefined}
+        hasMatchingRules={false}
+        hasSelectedFilter={true}
+        outgoingDecision={null}
+        rules={[]}
+        onChoose={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.getByRole('heading', { name: 'No rules match these filters.' }),
+    ).toBeInTheDocument()
   })
 })

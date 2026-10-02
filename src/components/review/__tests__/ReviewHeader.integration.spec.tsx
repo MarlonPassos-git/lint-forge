@@ -16,6 +16,7 @@ function createHeaderProps(overrides: Partial<ReviewHeaderProps> = {}): ReviewHe
     selectedCategories: [...ruleCategories],
     selectedDomains: [...availableRuleDomains],
     totalRules: 0,
+    onDomainSelection: vi.fn(),
     onFilterGroupSelection: vi.fn(),
     onFilterToggle: vi.fn(),
     onResetRequest: vi.fn(),

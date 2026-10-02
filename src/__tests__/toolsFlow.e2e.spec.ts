@@ -52,8 +52,16 @@ for (const tool of [
     choice: 'Error',
     filename: 'eslint.config.mjs',
     language: 'TypeScript',
+    sources: 'Rule sources',
   },
-  { path: 'ruff', name: 'Ruff', choice: 'Enable', filename: 'ruff.toml', language: 'Python' },
+  {
+    path: 'ruff',
+    name: 'Ruff',
+    choice: 'Enable',
+    filename: 'ruff.toml',
+    language: 'Python',
+    sources: 'Rule sources',
+  },
 ]) {
   test(`${tool.name} deep link supports review, undo, filters, panels and reset`, async ({
     page,
@@ -75,8 +83,8 @@ for (const tool of [
     await expect(
       page.getByRole('checkbox', { name: tool.language, exact: true }).first(),
     ).toBeVisible()
-    await page.getByRole('button', { name: 'Clear all Languages' }).click()
-    await page.getByRole('button', { name: 'Clear all Tools' }).click()
+    await page.getByRole('checkbox', { name: 'Toggle all Languages' }).click()
+    await page.getByRole('checkbox', { name: `Toggle all ${tool.sources}` }).click()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('button', { name: 'Review setup' })).toBeFocused()
     await expect(page.getByRole('heading', { name: 'No filters selected.' })).toBeVisible()

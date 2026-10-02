@@ -37,6 +37,7 @@ test('matches review workspace visual baseline', async ({ mount }) => {
         choices: [{ decision: 'warn', ruleKey: 'style/useConst' }],
         chooseRule: () => undefined,
         errorText: '',
+        hasMatchingRules: true,
         hasSelectedFilter: true,
         importText: '{\n  "linter": {\n    "rules": {}\n  }\n}',
         isInputVisible: true,

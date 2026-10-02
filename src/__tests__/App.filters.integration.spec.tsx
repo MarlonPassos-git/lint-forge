@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { biomeRules } from '../domain/biomeRules'
 import { getRuleCategories } from '../domain/ruleCategories'
+import { biomeTool } from '../domain/tools/biome'
 import App from '../ReviewApp'
 
 async function openReviewSetup() {
@@ -29,8 +30,10 @@ describe('App review filters', () => {
     render(<App />)
     await openReviewSetup()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Languages' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Tools' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Toggle all Languages' }))
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: 'Toggle all Frameworks & ecosystems' }),
+    )
     expect(screen.getByText('No filters')).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'React' }))
@@ -39,12 +42,31 @@ describe('App review filters', () => {
     expect(screen.getByText(`0/${reactRuleCount}`)).toBeInTheDocument()
   })
 
+  it('clears a whole tool group from its tri-state toggle', async () => {
+    render(<App />)
+    await openReviewSetup()
+
+    const frameworkDomains =
+      biomeTool.domainGroups.find((group) => group.label === 'Frameworks')?.domains ?? []
+    const remainingRules = biomeRules.filter(
+      (rule) =>
+        rule.domains.length === 0 ||
+        rule.domains.some((domain) => !frameworkDomains.includes(domain)),
+    ).length
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Toggle all Frameworks' }))
+
+    expect(screen.getByText(`0/${remainingRules}`)).toBeInTheDocument()
+  })
+
   it('shows a distinct state when every filter is disabled', async () => {
     render(<App />)
     await openReviewSetup()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Languages' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Clear all Tools' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Toggle all Languages' }))
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: 'Toggle all Frameworks & ecosystems' }),
+    )
 
     expect(screen.getByText('No filters')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'No filters selected.' })).toBeInTheDocument()
