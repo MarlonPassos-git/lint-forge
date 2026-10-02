@@ -1,7 +1,7 @@
 import { toRuleKey } from '../configuration'
 import { getRuleCategories } from '../ruleCategories'
 import { type RuleFilterGroup, toggleSelectedFilter } from '../ruleFilters'
-import type { ReviewSnapshot, RuleFilter } from '../types'
+import type { ReviewSnapshot, RuleDomain, RuleFilter } from '../types'
 import type { ReviewTool } from './types'
 
 export function toolStorageKey(tool: ReviewTool) {
@@ -38,6 +38,26 @@ export function toggleToolFilter(
         ? selectedCategories
         : toggleSelectedFilter(selectedCategories, filter as (typeof selectedCategories)[number]),
       selectedDomains: isDomain ? toggleSelectedFilter(selectedDomains, filter) : selectedDomains,
+    },
+  }
+}
+
+export function selectToolDomains(
+  snapshot: ReviewSnapshot,
+  domains: RuleDomain[],
+  selected: boolean,
+  tool: ReviewTool,
+): ReviewSnapshot {
+  const filters = snapshot.filters ?? initialToolSnapshot(tool).filters
+  const currentDomains = filters?.selectedDomains ?? Object.keys(tool.domainLabels)
+  return {
+    ...snapshot,
+    currentIndex: 0,
+    filters: {
+      selectedCategories: filters?.selectedCategories ?? tool.categories,
+      selectedDomains: selected
+        ? [...new Set([...currentDomains, ...domains])]
+        : currentDomains.filter((domain) => !domains.includes(domain)),
     },
   }
 }

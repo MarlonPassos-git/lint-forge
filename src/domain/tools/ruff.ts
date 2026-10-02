@@ -2,9 +2,57 @@ import { parse, stringify, type TomlTable } from 'smol-toml'
 import { ruffDomainLabels, ruffRules, ruffVersion } from '../ruffRules'
 import type { BiomeConfig, RuleChoice } from '../types'
 import { configRecord, configStringList, isConfigRecord } from './configRecords'
-import type { ReviewTool } from './types'
+import type { ReviewDomainGroup, ReviewTool } from './types'
 
 const selectionFields = ['select', 'extend-select', 'ignore', 'extend-ignore'] as const
+
+const ruffDefaultDomains = ['Pyflakes', 'pycodestyle']
+const ruffIntegratedDomains = [
+  'Pylint',
+  'eradicate',
+  'flynt',
+  'isort',
+  'mccabe',
+  'pep8-naming',
+  'pydocstyle',
+  'pygrep-hooks',
+  'pyupgrade',
+  'refurb',
+  'tryceratops',
+]
+const ruffPluginDomains = ['Airflow', 'FastAPI', 'NumPy-specific rules', 'Perflint', 'pandas-vet']
+
+/** Groups every cataloged linter, including new ones only after classification. */
+function ruffDomainGroups(): ReviewDomainGroup[] {
+  const domains = Object.keys(ruffDomainLabels)
+  const defaultDomains = new Set(ruffDefaultDomains)
+  const integratedDomains = new Set(ruffIntegratedDomains)
+  const pluginDomains = new Set(ruffPluginDomains)
+  return [
+    {
+      label: 'Default',
+      summary: "The linters behind Ruff's default rule set.",
+      domains: domains.filter((domain) => defaultDomains.has(domain)),
+    },
+    {
+      label: 'Ruff native',
+      summary: 'Rules written by Ruff for checks other linters do not cover.',
+      domains: domains.filter((domain) => domain === 'Ruff-specific rules'),
+    },
+    {
+      label: 'Integrated linters',
+      summary: 'Rule sets ported from standalone Python linters.',
+      domains: domains.filter((domain) => integratedDomains.has(domain)),
+    },
+    {
+      label: 'Plugins',
+      summary: 'Rule sets ported from third-party flake8 plugins and framework integrations.',
+      domains: domains.filter(
+        (domain) => pluginDomains.has(domain) || domain.startsWith('flake8-'),
+      ),
+    },
+  ]
+}
 
 export const ruffTool: ReviewTool = {
   id: 'ruff',
@@ -14,6 +62,8 @@ export const ruffTool: ReviewTool = {
   rules: ruffRules,
   categories: ['Python'],
   domainLabels: ruffDomainLabels,
+  domainSectionLabel: 'Rule sources',
+  domainGroups: ruffDomainGroups(),
   decisions: ['off', 'error'],
   decisionLabels: { off: 'Disable', error: 'Enable' },
   defaultInput: '[lint]\nselect = []\nignore = []\n',

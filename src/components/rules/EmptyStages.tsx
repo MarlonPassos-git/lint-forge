@@ -10,6 +10,16 @@ export function NoFiltersStage() {
   )
 }
 
+export function NoMatchingRulesStage() {
+  return (
+    <section className="finished-stage">
+      <AlertTriangle size={44} aria-hidden="true" />
+      <h2>No rules match these filters.</h2>
+      <p>Select at least one tool or language in Review setup to include rules.</p>
+    </section>
+  )
+}
+
 export function FinishedStage() {
   return (
     <section className="finished-stage">

@@ -9,13 +9,14 @@ import {
 } from '../domain/ruleFilters'
 import {
   initialToolSnapshot,
+  selectToolDomains,
   selectToolFilterGroup,
   toggleToolFilter,
   toolStorageKey,
   undoToolChoice,
 } from '../domain/tools/reviewSnapshot'
 import type { ReviewTool } from '../domain/tools/types'
-import type { ReviewSnapshot, RuleDecision, RuleFilter } from '../domain/types'
+import type { ReviewSnapshot, RuleDecision, RuleDomain, RuleFilter } from '../domain/types'
 import {
   clearReviewSnapshot,
   loadReviewSnapshot,
@@ -108,6 +109,7 @@ function useToolReviewState(snapshot: ReviewSnapshot, tool: ReviewTool) {
   return {
     activeRule: pendingRules[0],
     filteredRules,
+    hasMatchingRules: filteredRules.length > 0,
     outputText,
     filename: tool.filename(baseConfig),
     visibleRules,
@@ -181,6 +183,11 @@ function useToolFilterActions(tool: ReviewTool, storeSnapshot: (update: Snapshot
       storeSnapshot((snapshot) => selectToolFilterGroup(snapshot, group, selected, tool)),
     [storeSnapshot, tool],
   )
+  const setDomainSelection = useCallback(
+    (domains: RuleDomain[], selected: boolean) =>
+      storeSnapshot((snapshot) => selectToolDomains(snapshot, domains, selected, tool)),
+    [storeSnapshot, tool],
+  )
   const updatePanelVisibility = useCallback(
     (patch: Partial<NonNullable<ReviewSnapshot['panels']>>) =>
       storeSnapshot((snapshot) => ({
@@ -189,7 +196,7 @@ function useToolFilterActions(tool: ReviewTool, storeSnapshot: (update: Snapshot
       })),
     [storeSnapshot],
   )
-  return { toggleFilter, setFilterGroupSelection, updatePanelVisibility }
+  return { toggleFilter, setDomainSelection, setFilterGroupSelection, updatePanelVisibility }
 }
 
 function importToolConfig({

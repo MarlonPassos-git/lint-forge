@@ -41,7 +41,13 @@ export const availableRuleDomains = ruleDomainOrder.filter((domain) =>
   biomeRules.some((rule) => rule.domains.includes(domain)),
 )
 
-/** A rule enters the deck when its language or one of its tool domains is selected. */
+/**
+ * A rule enters the deck only when every filter group it belongs to is satisfied:
+ * rules tagged with tool domains require a selected domain, and every rule must
+ * match a selected language when languages are selected. Domainless rules are
+ * language-only rules, so an unchecked tool removes its tagged rules even when
+ * the rule language stays selected.
+ */
 export function filterRulesBySelection(
   rules: BiomeRule[],
   selectedCategories: RuleCategory[],
@@ -50,11 +56,20 @@ export function filterRulesBySelection(
   if (!hasSelectedFilters(selectedCategories, selectedDomains)) return []
   const selectedCategorySet = new Set(selectedCategories)
   const selectedDomainSet = new Set(selectedDomains)
-  return rules.filter(
-    (rule) =>
-      getRuleCategories(rule).some((category) => selectedCategorySet.has(category)) ||
-      rule.domains.some((domain) => selectedDomainSet.has(domain)),
+  return rules.filter((rule) => isRuleSelected(rule, selectedCategorySet, selectedDomainSet))
+}
+
+function isRuleSelected(
+  rule: BiomeRule,
+  selectedCategorySet: Set<RuleCategory>,
+  selectedDomainSet: Set<RuleDomain>,
+) {
+  const matchesCategory = getRuleCategories(rule).some((category) =>
+    selectedCategorySet.has(category),
   )
+  if (rule.domains.length === 0) return matchesCategory
+  const matchesDomain = rule.domains.some((domain) => selectedDomainSet.has(domain))
+  return matchesDomain && (selectedCategorySet.size === 0 || matchesCategory)
 }
 
 export function hasSelectedFilters(

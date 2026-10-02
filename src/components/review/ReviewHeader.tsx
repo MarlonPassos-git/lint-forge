@@ -104,6 +104,7 @@ function areReviewHeaderPropsEqual(previous: ReviewHeaderProps, next: ReviewHead
     previous.selectedCategories === next.selectedCategories &&
     previous.selectedDomains === next.selectedDomains &&
     previous.totalRules === next.totalRules &&
+    previous.onDomainSelection === next.onDomainSelection &&
     previous.onFilterGroupSelection === next.onFilterGroupSelection &&
     previous.onFilterToggle === next.onFilterToggle &&
     previous.onResetRequest === next.onResetRequest &&

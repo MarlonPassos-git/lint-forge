@@ -17,6 +17,7 @@ function ReviewApp() {
         selectedCategories={review.selectedCategories}
         selectedDomains={review.selectedDomains}
         totalRules={review.filteredRules.length}
+        onDomainSelection={review.setDomainSelection}
         onFilterGroupSelection={review.setFilterGroupSelection}
         onFilterToggle={review.toggleFilter}
         onResetRequest={review.openResetDialog}

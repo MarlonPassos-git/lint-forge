@@ -1,6 +1,23 @@
-import type { BiomeConfig, BiomeRule, RuleCategory, RuleChoice, RuleDecision } from '../types'
+import type {
+  BiomeConfig,
+  BiomeRule,
+  RuleCategory,
+  RuleChoice,
+  RuleDecision,
+  RuleDomain,
+} from '../types'
 
 export type ToolId = 'biome' | 'eslint' | 'ruff'
+
+/**
+ * A labeled set of tool domains shown as a subgroup in Review setup.
+ * Together the groups must partition every key of `domainLabels`.
+ */
+export type ReviewDomainGroup = {
+  label: string
+  summary: string
+  domains: RuleDomain[]
+}
 
 /** Tool-specific contracts used by the shared review workflow. */
 export type ReviewTool = {
@@ -11,6 +28,8 @@ export type ReviewTool = {
   rules: BiomeRule[]
   categories: RuleCategory[]
   domainLabels: Record<string, string>
+  domainSectionLabel: string
+  domainGroups: ReviewDomainGroup[]
   decisions: RuleDecision[]
   decisionLabels?: Partial<Record<RuleDecision, string>>
   defaultInput: string

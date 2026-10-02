@@ -10,6 +10,7 @@ type ReviewWorkspaceProps = {
     filename?: string
     choices: RuleChoice[]
     errorText: string
+    hasMatchingRules: boolean
     hasSelectedFilter: boolean
     importText: string
     isInputVisible: boolean
@@ -39,6 +40,7 @@ export function ReviewWorkspace({ controller }: ReviewWorkspaceProps) {
       />
       <RuleStage
         activeRule={controller.activeRule}
+        hasMatchingRules={controller.hasMatchingRules}
         hasSelectedFilter={controller.hasSelectedFilter}
         outgoingDecision={controller.outgoingDecision}
         rules={controller.visibleRules}

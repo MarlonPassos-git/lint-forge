@@ -5,6 +5,19 @@ import { explicitEslintRules, inspectEslintSource } from './eslintSource'
 import { validateEslintBlocks } from './eslintValidation'
 import type { ReviewTool } from './types'
 
+const eslintDomainGroups = [
+  {
+    label: 'Built in',
+    summary: 'Ships with ESLint and needs no extra install.',
+    domains: ['eslint'],
+  },
+  {
+    label: 'Plugins',
+    summary: 'Installed separately; the generated config imports them.',
+    domains: ['@typescript-eslint', 'react-hooks'],
+  },
+]
+
 export const eslintTool: ReviewTool = {
   id: 'eslint',
   name: 'ESLint',
@@ -13,6 +26,8 @@ export const eslintTool: ReviewTool = {
   rules: eslintRules,
   categories: ['JavaScript', 'TypeScript'],
   domainLabels: eslintDomainLabels,
+  domainSectionLabel: 'Rule sources',
+  domainGroups: eslintDomainGroups,
   decisions: ['off', 'warn', 'error'],
   defaultInput: 'export default [\n  { rules: {} },\n]\n',
   importHint:
