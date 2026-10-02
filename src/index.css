@@ -1,4 +1,10 @@
 :root {
+  --scrollbar-inset: #f4efe3;
+  --scrollbar-rail: #151515;
+  --scrollbar-thumb: #151515;
+  --scrollbar-thumb-active: #b23386;
+  --scrollbar-thumb-hover: #d33b53;
+  --scrollbar-track: #f4efe3;
   color: #151515;
   background: #f4efe3;
   font-family: "Trebuchet MS", Verdana, sans-serif;
@@ -22,4 +28,64 @@ body {
 #root {
   max-width: 100%;
   min-width: 0;
+}
+
+/*
+ * Browser surfaces: standard scrollbar properties come first, and the
+ * --scrollbar-* variables cascade into both paths. Component CSS only
+ * assigns those variables for its surface.
+ */
+html,
+textarea,
+.review-setup-popover {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+/* Legacy rail for browsers without scrollbar-color support. */
+@supports not (scrollbar-color: auto) {
+  html::-webkit-scrollbar,
+  textarea::-webkit-scrollbar,
+  .review-setup-popover::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+
+  html::-webkit-scrollbar-track,
+  textarea::-webkit-scrollbar-track,
+  .review-setup-popover::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-inline-start: 1px solid var(--scrollbar-rail);
+  }
+
+  html::-webkit-scrollbar-thumb,
+  textarea::-webkit-scrollbar-thumb,
+  .review-setup-popover::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid var(--scrollbar-inset);
+  }
+
+  html::-webkit-scrollbar-thumb:hover,
+  textarea::-webkit-scrollbar-thumb:hover,
+  .review-setup-popover::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  html::-webkit-scrollbar-thumb:active,
+  textarea::-webkit-scrollbar-thumb:active,
+  .review-setup-popover::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-active);
+  }
+
+  html::-webkit-scrollbar-button,
+  textarea::-webkit-scrollbar-button,
+  .review-setup-popover::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  html::-webkit-scrollbar-corner,
+  textarea::-webkit-scrollbar-corner,
+  .review-setup-popover::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track);
+  }
 }

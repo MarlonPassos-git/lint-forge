@@ -39,6 +39,8 @@
 }
 
 textarea {
+  --scrollbar-inset: #fffdf7;
+  --scrollbar-track: #fffdf7;
   background: #fffdf7;
   border: 1px solid #151515;
   box-sizing: border-box;
@@ -62,6 +64,10 @@ textarea {
 }
 
 .output-code {
+  --scrollbar-inset: #151515;
+  --scrollbar-rail: #4c463d;
+  --scrollbar-thumb: #f9f1dd;
+  --scrollbar-track: #151515;
   background: #151515;
   color: #f9f1dd;
   font:
