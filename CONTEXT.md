@@ -35,7 +35,7 @@ _Avoid_: Category, tool, tag
 
 - A **Pending Rule** receives exactly one **Rule Decision** during review
 - Biome decisions are **Off**, **Info**, **Warn**, or **Error**; ESLint omits **Info**; Ruff uses **Enable** or **Disable**, because it has no per-rule severity.
-- A **Pending Rule** appears in the review deck when one of its **Rule Filter**s is selected
+- A **Pending Rule** appears in the review deck when it matches the selected languages (when any are selected) and, if it is tagged with tool domains, one of those domains is selected. An unchecked tool excludes its rules
 
 ## Example dialogue
 

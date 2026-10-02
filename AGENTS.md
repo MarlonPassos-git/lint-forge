@@ -106,7 +106,11 @@ Do not crawler-scrape the docs unless schema generation stops being viable. Pref
 - Imported explicit rules are treated as complete and skipped.
 - `recommended: true` is not expanded into completed rules. Only explicit rules count as configured.
 - Language and tool filters live in a review setup popover anchored to the header button beside reset, and affect the review deck and progress denominator.
-- A rule enters the deck when one of its languages or one of its tool domains is selected.
+- Tool filters use a per-tool section label (`Frameworks & ecosystems` for Biome, `Rule sources` for ESLint and Ruff) and group domains by origin, such as built-in rules, integrated linters, and plugins. Every `domainLabels` key must belong to exactly one `domainGroups` entry.
+- Every filter section and tool domain group header has a tri-state checkbox that selects or clears the whole group, showing the checked, mixed, and unchecked states. The single toggle replaces the former section All/None button pair.
+- A rule enters the deck when it matches the selected languages (when any are selected) and, if it is tagged with tool domains, one of those domains is selected. An unchecked tool excludes its rules even when the rule language stays selected.
+- Rules without tool domains are language-only rules; with no tool selected they stay in the deck only through their language.
+- A selected filter set that matches no rule shows a "No rules match these filters." stage instead of the finished state.
 - Already-decided rules do not reappear when filters change.
 - The setup popover uses the native Popover API: light dismiss and Escape close it, focus moves into the panel on open, and focus returns to the trigger on close. `@oddbird/popover-polyfill` is loaded only when `popover` is missing from `HTMLElement.prototype`.
 - Reset is destructive and must open a confirmation modal with `Cancel` and `Reset everything`.

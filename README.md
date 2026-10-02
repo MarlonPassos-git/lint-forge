@@ -24,7 +24,7 @@ Lint Forge helps developers build custom Biome, ESLint and Ruff configurations. 
 - Import `biome.json`, ESLint flat config JavaScript or JSON, and `ruff.toml` or `pyproject.toml`.
 - Choose Biome severities (`Off`, `Info`, `Warn`, `Error`), ESLint severities (`Off`, `Warn`, `Error`), or Ruff `Enable`/`Disable`.
 - Read rule documentation inside the deck or open the official page in another tab.
-- Filter the review deck by language and tool domain, such as React, Next.js, Vue, and Playwright, from the review setup menu.
+- Filter the review deck by language and tool domain from the review setup menu, with rule sources grouped as built-in, integrated linters, or plugins and a tri-state select/clear toggle per section and group. Unchecked tools exclude their rules.
 - Persist imported config, decisions, filters, progress, and panel visibility in `localStorage`.
 - Generate `biome.json`, `eslint.config.mjs`, `ruff.toml` or `pyproject.toml` as decisions are made.
 

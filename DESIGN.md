@@ -313,7 +313,7 @@ Gumroad's pinned `components/ui` kit uses a consistent recipe: `border border-bo
 
 **Empty and code states:** Gumroad `Placeholder` uses dashed bordered blocks with centered copy; `CodeSnippet` uses bordered figures with caption and pre/code. Match that for empty filters and generated config snippets, while keeping generated `biome.json` as a high-contrast code surface.
 
-**Filter chips:** Small, bordered, square labels with native checkboxes. They should read as controls, not tags or pills. They live in the review setup menu and wrap in a compact grid; group All/None actions are small bordered buttons with the same hover lift as other controls.
+**Filter chips:** Small, bordered, square labels with native checkboxes. They should read as controls, not tags or pills. They live in the review setup menu and wrap in a compact grid; section and domain group headers use a tri-state select-all checkbox with the same hover lift as other controls.
 
 **Setup menu:** A header-anchored popover with the panel recipe: warm neutral surface, black border, offset shadow, `14px` padding, vertical sections separated by rules. It holds language and tool filters. The trigger sits beside the reset button, and expanded state inverts the button to ink.
 
